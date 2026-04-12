@@ -1,0 +1,99 @@
+input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="datetime-local"],
+input[type="date"],
+input[type="search"],
+select,
+textarea {
+    width: 100%;
+    border-radius: 1rem;
+    border: 1px solid #d6d3d1;
+    background: #fafaf9;
+    padding: 0.875rem 1rem;
+    outline: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #101418;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(16, 20, 24, 0.08);
+}
+
+input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #a8a29e;
+}
+
+select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #78716c 50%), linear-gradient(135deg, #78716c 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(50% - 3px), calc(100% - 14px) calc(50% - 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+
+table tbody tr {
+    transition: background-color 0.18s ease;
+}
+
+table tbody tr:hover {
+    background: rgba(248, 250, 252, 0.9);
+}
+
+#app-shell {
+    transition: grid-template-columns 0.2s ease;
+}
+
+#app-sidebar {
+    width: 100%;
+}
+
+#app-shell.sidebar-collapsed {
+    grid-template-columns: 96px 1fr;
+}
+
+#app-shell.sidebar-collapsed #app-sidebar {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+#app-shell.sidebar-collapsed #app-sidebar .sidebar-copy {
+    display: none;
+}
+
+#app-shell.sidebar-collapsed #app-sidebar nav a {
+    justify-content: center;
+}
+
+#app-shell.sidebar-collapsed #app-sidebar nav a > span:first-child {
+    gap: 0;
+}
+
+#app-shell.sidebar-collapsed #app-sidebar nav a > span:first-child > span:last-child {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    aside {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
+}

@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | FinderBit Estoque{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="mb-8 flex flex-wrap items-center justify-between gap-4">
+    <div>
+        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Resumo operacional</p>
+        <h3 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-950">Visao consolidada do estoque</h3>
+    </div>
+    <div class="flex flex-wrap items-center gap-2 rounded-full border border-stone-200 bg-white p-1">
+        <a href="?period=1" class="rounded-full px-4 py-2 text-sm font-semibold {% if period_days == 1 %}bg-slate-950 text-white{% else %}text-slate-600{% endif %}">Hoje</a>
+        <a href="?period=7" class="rounded-full px-4 py-2 text-sm font-semibold {% if period_days == 7 %}bg-slate-950 text-white{% else %}text-slate-600{% endif %}">7 dias</a>
+        <a href="?period=30" class="rounded-full px-4 py-2 text-sm font-semibold {% if period_days == 30 %}bg-slate-950 text-white{% else %}text-slate-600{% endif %}">30 dias</a>
+    </div>
+</section>
+<section class="grid gap-6 xl:grid-cols-[1.24fr_0.76fr]">
+    <article class="rounded-[2rem] bg-[#101418] p-8 text-white shadow-sm">
+        <div>
+            <p class="text-xs uppercase tracking-[0.32em] text-[#d9f06b]/80">Painel principal</p>
+            <h3 class="mt-4 max-w-2xl text-5xl font-extrabold leading-[1.02] tracking-tight">Estoque sob controle, leitura clara e operacao sem ruido.</h3>
+            <p class="mt-5 max-w-2xl text-sm leading-7 text-slate-400">Os indicadores abaixo mostram o comportamento do estoque no periodo selecionado, sem misturar excesso de informacao ou efeitos decorativos.</p>
+            <div class="mt-10 grid gap-4 sm:grid-cols-3">
+                <div class="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5">
+                    <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Produtos</p>
+                    <p class="mt-3 text-4xl font-extrabold">{{ total_products }}</p>
+                </div>
+                <div class="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5">
+                    <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Estoque baixo</p>
+                    <p class="mt-3 text-4xl font-extrabold text-amber-300">{{ low_stock_count }}</p>
+                </div>
+                <div class="rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-5">
+                    <p class="text-xs uppercase tracking-[0.24em] text-slate-500">Entradas</p>
+                    <p class="mt-3 text-4xl font-extrabold">{{ period_entries }}</p>
+                </div>
+            </div>
+        </div>
+    </article>
+    <article class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Leitura imediata</p>
+        <div class="mt-5 space-y-4">
+            <div class="rounded-[1.6rem] border border-stone-200 bg-stone-50 p-5">
+                <p class="text-xs uppercase tracking-[0.22em] text-slate-500">Situacao</p>
+                <p class="mt-2 text-2xl font-extrabold text-slate-950">{% if low_stock_count %}Atencao necessaria{% else %}Operacao estavel{% endif %}</p>
+                <p class="mt-3 text-sm leading-6 text-slate-500">Produtos abaixo do minimo aparecem em destaque nas telas de consulta e no grafico lateral.</p>
+            </div>
+            <div class="rounded-[1.6rem] border border-emerald-100 bg-emerald-50 p-5">
+                <p class="text-xs uppercase tracking-[0.22em] text-emerald-700">Saidas</p>
+                <p class="mt-2 text-3xl font-extrabold text-emerald-950">{{ period_exits }}</p>
+                <p class="mt-3 text-sm leading-6 text-emerald-900">Produtos sem movimentacao recente: {{ products_without_recent_movement }}</p>
+            </div>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-3">
+            <a href="{% url 'inventory:product-create' %}" class="rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800">Novo produto</a>
+            <a href="{% url 'inventory:movement-create' %}" class="rounded-2xl bg-[#d9f06b] px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-[#cfe55e]">Nova movimentacao</a>
+        </div>
+    </article>
+</section>
+
+<section class="mt-6 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
+    <article class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-xl font-extrabold tracking-tight">Ultimas movimentacoes</h3>
+                <p class="text-sm text-slate-500">Entradas e saidas registradas recentemente.</p>
+            </div>
+            <a href="{% url 'inventory:movement-create' %}" class="rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Nova movimentacao</a>
+        </div>
+        <div class="mt-6 overflow-hidden rounded-[1.5rem] border border-stone-200">
+            <table class="min-w-full divide-y divide-slate-100 text-sm">
+                <thead class="bg-stone-50 text-left text-slate-500">
+                    <tr>
+                        <th class="px-4 py-3 font-semibold">Produto</th>
+                        <th class="px-4 py-3 font-semibold">Tipo</th>
+                        <th class="px-4 py-3 font-semibold">Quantidade</th>
+                        <th class="px-4 py-3 font-semibold">Data</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 bg-white">
+                    {% for movement in recent_movements %}
+                        <tr>
+                            <td class="px-4 py-3 font-medium">{{ movement.product.name }}</td>
+                            <td class="px-4 py-3">
+                                <span class="rounded-full px-3 py-1 text-xs font-semibold {% if movement.movement_type == 'in' %}bg-emerald-100 text-emerald-700{% else %}bg-rose-100 text-rose-700{% endif %}">
+                                    {{ movement.get_movement_type_display }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3">{{ movement.quantity }}</td>
+                            <td class="px-4 py-3 text-slate-500">{{ movement.created_at|date:"d/m/Y H:i" }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="px-4 py-8 text-center text-slate-500">Nenhuma movimentacao registrada.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <article class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-xl font-extrabold tracking-tight">Resumo do estoque</h3>
+                <p class="text-sm text-slate-500">Produtos com leitura mais relevante no periodo.</p>
+            </div>
+            <a href="{% url 'inventory:stock-list' %}" class="text-sm font-semibold text-brand-600 hover:text-brand-500">Ver tudo</a>
+        </div>
+        <div class="mt-6 space-y-3">
+            {% for product in stock_summary %}
+                <div class="flex items-center justify-between rounded-[1.5rem] border border-stone-200 bg-stone-50 px-4 py-4">
+                    <div>
+                        <p class="font-semibold">{{ product.name }}</p>
+                        <p class="text-sm text-slate-500">{{ product.sku }} • {{ product.category.name }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-xl font-extrabold">{{ product.current_stock }}</p>
+                        <p class="text-xs font-semibold {% if product.current_stock <= product.minimum_stock %}text-amber-600{% else %}text-emerald-600{% endif %}">
+                            {% if product.current_stock <= product.minimum_stock %}Estoque baixo{% else %}Normal{% endif %}
+                        </p>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="rounded-2xl border border-dashed border-slate-200 px-4 py-8 text-center text-sm text-slate-500">
+                    Cadastre produtos para ver o resumo do estoque.
+                </div>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+
+<section class="mt-6 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+    <article class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-xl font-extrabold tracking-tight">Movimentacoes por dia</h3>
+                <p class="text-sm text-slate-500">Entradas e saidas no periodo selecionado.</p>
+            </div>
+            <span class="rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-slate-600">{{ period_days }} dias</span>
+        </div>
+        <div class="mt-6 h-80">
+            <canvas id="movementChart"></canvas>
+        </div>
+    </article>
+
+    <article class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-xl font-extrabold tracking-tight">Itens com estoque baixo</h3>
+                <p class="text-sm text-slate-500">Produtos que pedem atencao imediata.</p>
+            </div>
+        </div>
+        <div class="mt-6 h-80">
+            <canvas id="lowStockChart"></canvas>
+        </div>
+    </article>
+</section>
+
+{{ movement_chart_labels|json_script:"movement-chart-labels" }}
+{{ movement_chart_entries|json_script:"movement-chart-entries" }}
+{{ movement_chart_exits|json_script:"movement-chart-exits" }}
+{{ low_stock_chart_labels|json_script:"low-stock-chart-labels" }}
+{{ low_stock_chart_values|json_script:"low-stock-chart-values" }}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const movementLabels = JSON.parse(document.getElementById("movement-chart-labels").textContent);
+    const movementEntries = JSON.parse(document.getElementById("movement-chart-entries").textContent);
+    const movementExits = JSON.parse(document.getElementById("movement-chart-exits").textContent);
+    const lowStockLabels = JSON.parse(document.getElementById("low-stock-chart-labels").textContent);
+    const lowStockValues = JSON.parse(document.getElementById("low-stock-chart-values").textContent);
+
+    const movementCtx = document.getElementById("movementChart");
+    if (movementCtx) {
+        new Chart(movementCtx, {
+            type: "bar",
+            data: {
+                labels: movementLabels,
+                datasets: [
+                    {
+                        label: "Entradas",
+                        data: movementEntries,
+                        backgroundColor: "#18845a",
+                        borderRadius: 10,
+                        maxBarThickness: 26,
+                    },
+                    {
+                        label: "Saidas",
+                        data: movementExits,
+                        backgroundColor: "#e11d48",
+                        borderRadius: 10,
+                        maxBarThickness: 26,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "top",
+                        labels: {
+                            boxWidth: 12,
+                            usePointStyle: true,
+                            pointStyle: "circle"
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 }
+                    }
+                }
+            }
+        });
+    }
+
+    const lowStockCtx = document.getElementById("lowStockChart");
+    if (lowStockCtx) {
+        new Chart(lowStockCtx, {
+            type: "doughnut",
+            data: {
+                labels: lowStockLabels.length ? lowStockLabels : ["Sem alertas"],
+                datasets: [{
+                    data: lowStockValues.length ? lowStockValues : [1],
+                    backgroundColor: lowStockValues.length
+                        ? ["#f59e0b", "#f97316", "#ef4444", "#fb7185", "#facc15", "#fdba74"]
+                        : ["#cbd5e1"],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: "68%",
+                plugins: {
+                    legend: {
+                        position: "bottom",
+                        labels: {
+                            boxWidth: 12,
+                            usePointStyle: true,
+                            pointStyle: "circle"
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

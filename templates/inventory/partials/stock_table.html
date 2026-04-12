@@ -1,0 +1,35 @@
+<div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+    <table class="min-w-full divide-y divide-slate-100 text-sm">
+        <thead class="bg-slate-50 text-left text-slate-500">
+            <tr>
+                <th class="px-5 py-4 font-semibold">Produto</th>
+                <th class="px-5 py-4 font-semibold">SKU</th>
+                <th class="px-5 py-4 font-semibold">Categoria</th>
+                <th class="px-5 py-4 font-semibold">Saldo atual</th>
+                <th class="px-5 py-4 font-semibold">Estoque minimo</th>
+                <th class="px-5 py-4 font-semibold">Status</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white">
+            {% for product in products %}
+                <tr>
+                    <td class="px-5 py-4 font-semibold">{{ product.name }}</td>
+                    <td class="px-5 py-4 text-slate-600">{{ product.sku }}</td>
+                    <td class="px-5 py-4 text-slate-600">{{ product.category.name }}</td>
+                    <td class="px-5 py-4 font-bold">{{ product.current_stock }}</td>
+                    <td class="px-5 py-4 text-slate-600">{{ product.minimum_stock }}</td>
+                    <td class="px-5 py-4">
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold {% if product.current_stock <= product.minimum_stock %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                            {% if product.current_stock <= product.minimum_stock %}Baixo{% else %}Normal{% endif %}
+                        </span>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="px-5 py-12 text-center text-slate-500">Nenhum produto encontrado.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include "components/pagination.html" %}

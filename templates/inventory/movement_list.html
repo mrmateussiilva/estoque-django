@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Historico | FinderBit Estoque{% endblock %}
+{% block page_title %}Historico{% endblock %}
+
+{% block content %}
+<section class="space-y-6">
+    <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+                <p class="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">Rastreabilidade</p>
+                <h3 class="mt-2 text-3xl font-extrabold tracking-tight">Historico de movimentacoes</h3>
+                <p class="mt-2 text-sm text-slate-500">Consulte entradas e saidas por produto, tipo e periodo.</p>
+            </div>
+            <a href="{% url 'inventory:movement-create' %}" class="rounded-2xl bg-brand-500 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-600">Nova movimentacao</a>
+        </div>
+    </div>
+
+    <form method="get" class="grid gap-4 rounded-[2rem] border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-5">
+        <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Produto</label>
+            <select name="product" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <option value="">Todos</option>
+                {% for product in products %}
+                    <option value="{{ product.pk }}" {% if filters.product == product.pk|stringformat:'s' %}selected{% endif %}>{{ product.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Tipo</label>
+            <select name="type" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <option value="">Todos</option>
+                {% for value, label in movement_types %}
+                    <option value="{{ value }}" {% if filters.type == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Data inicial</label>
+            <input type="date" name="start_date" value="{{ filters.start_date }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+        </div>
+        <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Data final</label>
+            <input type="date" name="end_date" value="{{ filters.end_date }}" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+        </div>
+        <div>
+            <label class="mb-2 block text-sm font-semibold text-slate-700">Ordenar por</label>
+            <select name="ordering" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                <option value="date_desc" {% if filters.ordering == 'date_desc' %}selected{% endif %}>Mais recentes</option>
+                <option value="date_asc" {% if filters.ordering == 'date_asc' %}selected{% endif %}>Mais antigas</option>
+                <option value="product" {% if filters.ordering == 'product' %}selected{% endif %}>Produto</option>
+                <option value="quantity_desc" {% if filters.ordering == 'quantity_desc' %}selected{% endif %}>Maior quantidade</option>
+                <option value="quantity_asc" {% if filters.ordering == 'quantity_asc' %}selected{% endif %}>Menor quantidade</option>
+            </select>
+        </div>
+        <div class="md:col-span-5 flex items-center justify-between gap-3">
+            <a href="{% url 'inventory:movement-export' %}{% querystring %}" class="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Exportar CSV</a>
+            <div class="flex items-center gap-3">
+            <a href="{% url 'inventory:movement-list' %}" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Limpar</a>
+            <button class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">Filtrar</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-sm">
+        <table class="min-w-full divide-y divide-slate-100 text-sm">
+            <thead class="bg-slate-50 text-left text-slate-500">
+                <tr>
+                    <th class="px-5 py-4 font-semibold">Data</th>
+                    <th class="px-5 py-4 font-semibold">Produto</th>
+                    <th class="px-5 py-4 font-semibold">Tipo</th>
+                    <th class="px-5 py-4 font-semibold">Quantidade</th>
+                    <th class="px-5 py-4 font-semibold">Motivo</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 bg-white">
+                {% for movement in movements %}
+                    <tr>
+                        <td class="px-5 py-4 text-slate-500">{{ movement.created_at|date:"d/m/Y H:i" }}</td>
+                        <td class="px-5 py-4">
+                            <p class="font-semibold">{{ movement.product.name }}</p>
+                            <p class="text-xs text-slate-500">{{ movement.product.sku }}</p>
+                        </td>
+                        <td class="px-5 py-4">
+                            <span class="rounded-full px-3 py-1 text-xs font-semibold {% if movement.movement_type == 'in' %}bg-emerald-100 text-emerald-700{% else %}bg-rose-100 text-rose-700{% endif %}">
+                                {{ movement.get_movement_type_display }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 font-semibold">{{ movement.quantity }}</td>
+                        <td class="px-5 py-4 text-slate-600">{{ movement.reason }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-5 py-12 text-center text-slate-500">Nenhuma movimentacao encontrada.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% include "components/pagination.html" %}
+</section>
+{% endblock %}

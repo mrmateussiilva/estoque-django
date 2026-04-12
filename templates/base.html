@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Estoque SaaS{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: "#eef8f4",
+                            100: "#d5efe3",
+                            500: "#18845a",
+                            600: "#136949",
+                            900: "#0f2c22"
+                        }
+                    },
+                    fontFamily: {
+                        sans: ["Manrope", "ui-sans-serif", "system-ui", "sans-serif"]
+                    },
+                    boxShadow: {
+                        card: "0 20px 45px -25px rgba(15, 44, 34, 0.25)"
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-stone-100 text-slate-900">
+    {% if user.is_authenticated %}
+        <div id="app-shell" class="min-h-screen lg:grid lg:grid-cols-[292px_1fr]">
+            <aside id="app-sidebar" class="relative overflow-hidden border-r border-slate-800 bg-[#101418] px-6 py-8 text-slate-100 transition-all duration-200">
+                <a href="{% url 'dashboard:home' %}" class="block">
+                    <div class="inline-flex items-center gap-3">
+                        <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#d9f06b] text-sm font-extrabold tracking-[0.14em] text-slate-950">FB</div>
+                        <div class="sidebar-copy">
+                            <p class="text-[11px] uppercase tracking-[0.32em] text-slate-500">Controle</p>
+                            <h1 class="text-xl font-extrabold tracking-tight text-white">FinderBit Estoque</h1>
+                        </div>
+                    </div>
+                    <p class="sidebar-copy mt-5 text-sm text-slate-400">{{ current_company.name|default:"Sem empresa" }}</p>
+                </a>
+                <div class="mt-10 sidebar-copy">
+                    <p class="px-4 text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-600">Navegacao</p>
+                </div>
+                <nav class="relative mt-4 space-y-2 text-sm font-medium">
+                    <a href="{% url 'dashboard:home' %}" class="group flex items-center justify-between rounded-2xl border px-4 py-3 transition {% if request.resolver_match.namespace == 'dashboard' %}border-[#d9f06b]/20 bg-[#d9f06b]/10 text-white{% else %}border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white{% endif %}">
+                        <span class="flex items-center gap-3"><span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl {% if request.resolver_match.namespace == 'dashboard' %}bg-[#d9f06b] text-slate-950{% else %}bg-white/5 text-slate-400 group-hover:bg-white/10 group-hover:text-white{% endif %} text-[10px] font-bold">DB</span><span class="sidebar-copy">Dashboard</span></span>
+                        <span class="sidebar-copy text-[10px] uppercase tracking-[0.24em] text-slate-500">01</span>
+                    </a>
+                    <a href="{% url 'inventory:product-list' %}" class="group flex items-center justify-between rounded-2xl border px-4 py-3 transition {% if request.resolver_match.url_name == 'product-list' or request.resolver_match.url_name == 'product-create' or request.resolver_match.url_name == 'product-detail' or request.resolver_match.url_name == 'product-update' %}border-[#d9f06b]/20 bg-[#d9f06b]/10 text-white{% else %}border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white{% endif %}">
+                        <span class="flex items-center gap-3"><span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl {% if request.resolver_match.url_name == 'product-list' or request.resolver_match.url_name == 'product-create' or request.resolver_match.url_name == 'product-detail' or request.resolver_match.url_name == 'product-update' %}bg-[#d9f06b] text-slate-950{% else %}bg-white/5 text-slate-400 group-hover:bg-white/10 group-hover:text-white{% endif %} text-[10px] font-bold">PR</span><span class="sidebar-copy">Produtos</span></span>
+                        <span class="sidebar-copy text-[10px] uppercase tracking-[0.24em] text-slate-500">02</span>
+                    </a>
+                    <a href="{% url 'inventory:stock-list' %}" class="group flex items-center justify-between rounded-2xl border px-4 py-3 transition {% if request.resolver_match.url_name == 'stock-list' %}border-[#d9f06b]/20 bg-[#d9f06b]/10 text-white{% else %}border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white{% endif %}">
+                        <span class="flex items-center gap-3"><span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl {% if request.resolver_match.url_name == 'stock-list' %}bg-[#d9f06b] text-slate-950{% else %}bg-white/5 text-slate-400 group-hover:bg-white/10 group-hover:text-white{% endif %} text-[10px] font-bold">ES</span><span class="sidebar-copy">Estoque atual</span></span>
+                        <span class="sidebar-copy text-[10px] uppercase tracking-[0.24em] text-slate-500">03</span>
+                    </a>
+                    <a href="{% url 'inventory:movement-list' %}" class="group flex items-center justify-between rounded-2xl border px-4 py-3 transition {% if request.resolver_match.url_name == 'movement-list' %}border-[#d9f06b]/20 bg-[#d9f06b]/10 text-white{% else %}border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white{% endif %}">
+                        <span class="flex items-center gap-3"><span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl {% if request.resolver_match.url_name == 'movement-list' %}bg-[#d9f06b] text-slate-950{% else %}bg-white/5 text-slate-400 group-hover:bg-white/10 group-hover:text-white{% endif %} text-[10px] font-bold">HI</span><span class="sidebar-copy">Historico</span></span>
+                        <span class="sidebar-copy text-[10px] uppercase tracking-[0.24em] text-slate-500">04</span>
+                    </a>
+                    <a href="{% url 'inventory:movement-create' %}" class="group flex items-center justify-between rounded-2xl border px-4 py-3 transition {% if request.resolver_match.url_name == 'movement-create' %}border-[#d9f06b]/20 bg-[#d9f06b]/10 text-white{% else %}border-[#d9f06b]/20 bg-[#d9f06b] text-slate-950 hover:bg-[#cfe55e]{% endif %}">
+                        <span class="flex items-center gap-3"><span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl {% if request.resolver_match.url_name == 'movement-create' %}bg-[#d9f06b] text-slate-950{% else %}bg-black/10 text-slate-950{% endif %} text-[10px] font-bold">NV</span><span class="sidebar-copy">Nova movimentacao</span></span>
+                        <span class="sidebar-copy text-[10px] uppercase tracking-[0.24em] {% if request.resolver_match.url_name == 'movement-create' %}text-slate-500{% else %}text-slate-700{% endif %}">+</span>
+                    </a>
+                </nav>
+                <div class="sidebar-copy relative mt-10 rounded-[1.75rem] border border-white/10 bg-[#171d23] p-5">
+                    <p class="text-xs uppercase tracking-[0.24em] text-slate-600">Regra central</p>
+                    <p class="mt-3 text-sm font-semibold text-white">Estoque deriva das movimentacoes.</p>
+                    <p class="mt-2 text-sm leading-6 text-slate-400">Entradas somam, saidas subtraem, e o saldo nunca depende de edicao manual.</p>
+                </div>
+            </aside>
+            <main class="min-w-0">
+                <header class="sticky top-0 z-20 border-b border-stone-200 bg-stone-100/95 px-6 py-5">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Operacao</p>
+                            <h2 class="mt-2 text-[2rem] font-extrabold tracking-tight text-slate-950">{% block page_title %}Painel{% endblock %}</h2>
+                        </div>
+                        <div class="flex items-center gap-3 self-start sm:self-auto">
+                            <button id="sidebar-toggle" type="button" class="hidden rounded-2xl border border-stone-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-stone-50 lg:inline-flex">
+                                Recolher menu
+                            </button>
+                            <div class="rounded-2xl border border-stone-200 bg-white px-4 py-2 text-right shadow-sm">
+                                <p class="text-sm font-semibold">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="text-xs text-slate-500">{{ user.email|default:"Conta interna" }}</p>
+                            </div>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button class="rounded-2xl border border-stone-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-stone-50">
+                                    Sair
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <nav class="mt-4 flex gap-2 overflow-x-auto pb-1 lg:hidden">
+                        <a href="{% url 'dashboard:home' %}" class="whitespace-nowrap rounded-2xl px-4 py-2 text-sm font-semibold {% if request.resolver_match.namespace == 'dashboard' %}bg-slate-950 text-white{% else %}border border-slate-200 bg-white text-slate-700{% endif %}">Dashboard</a>
+                        <a href="{% url 'inventory:product-list' %}" class="whitespace-nowrap rounded-2xl px-4 py-2 text-sm font-semibold {% if request.resolver_match.url_name == 'product-list' or request.resolver_match.url_name == 'product-create' or request.resolver_match.url_name == 'product-detail' or request.resolver_match.url_name == 'product-update' %}bg-slate-950 text-white{% else %}border border-slate-200 bg-white text-slate-700{% endif %}">Produtos</a>
+                        <a href="{% url 'inventory:stock-list' %}" class="whitespace-nowrap rounded-2xl px-4 py-2 text-sm font-semibold {% if request.resolver_match.url_name == 'stock-list' %}bg-slate-950 text-white{% else %}border border-slate-200 bg-white text-slate-700{% endif %}">Estoque</a>
+                        <a href="{% url 'inventory:movement-list' %}" class="whitespace-nowrap rounded-2xl px-4 py-2 text-sm font-semibold {% if request.resolver_match.url_name == 'movement-list' %}bg-slate-950 text-white{% else %}border border-slate-200 bg-white text-slate-700{% endif %}">Historico</a>
+                        <a href="{% url 'inventory:movement-create' %}" class="whitespace-nowrap rounded-2xl bg-brand-500 px-4 py-2 text-sm font-semibold text-white">Nova</a>
+                    </nav>
+                </header>
+                <div class="mx-auto w-full max-w-[1440px] p-4 sm:p-6 lg:p-8">
+                    {% include "components/messages.html" %}
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    {% else %}
+        {% block auth_content %}{% endblock %}
+    {% endif %}
+    {% block extra_js %}{% endblock %}
+    <script>
+        (() => {
+            const shell = document.getElementById("app-shell");
+            const sidebar = document.getElementById("app-sidebar");
+            const toggle = document.getElementById("sidebar-toggle");
+            if (!shell || !sidebar || !toggle) return;
+
+            const storageKey = "finderbit.sidebar.collapsed";
+
+            const applyState = (collapsed) => {
+                shell.classList.toggle("sidebar-collapsed", collapsed);
+                sidebar.classList.toggle("px-6", !collapsed);
+                sidebar.classList.toggle("px-4", collapsed);
+                toggle.textContent = collapsed ? "Expandir menu" : "Recolher menu";
+            };
+
+            const initialState = window.localStorage.getItem(storageKey) === "true";
+            applyState(initialState);
+
+            toggle.addEventListener("click", () => {
+                const collapsed = !shell.classList.contains("sidebar-collapsed");
+                window.localStorage.setItem(storageKey, String(collapsed));
+                applyState(collapsed);
+            });
+        })();
+    </script>
+</body>
+</html>
