@@ -104,6 +104,7 @@ Configure no painel da Vercel:
 ### 2) Banco de dados
 
 Em producao, use Postgres via `DATABASE_URL`. O SQLite local nao e recomendado para Vercel.
+Sem `DATABASE_URL`, o app cai em SQLite temporario em `/tmp/db.sqlite3` (ephemero), util apenas para teste rapido.
 
 ### 3) Comandos uteis antes do deploy
 
