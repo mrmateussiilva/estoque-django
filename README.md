@@ -89,6 +89,7 @@ No admin, associe usuarios a empresas criando ou editando `UserProfile`.
 ## Deploy na Vercel (Django)
 
 O projeto agora esta configurado para deploy na Vercel com runtime Python via `api/index.py` e `vercel.json`.
+Nao usamos a chave `builds` no `vercel.json`, para que as configuracoes de Build/Install do projeto na Vercel continuem valendo.
 
 ### 1) Variaveis de ambiente recomendadas
 
