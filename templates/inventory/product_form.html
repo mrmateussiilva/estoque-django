@@ -4,37 +4,31 @@
 {% block page_title %}{% if object %}Editar produto{% else %}Novo produto{% endif %}{% endblock %}
 
 {% block content %}
-<section class="max-w-4xl rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-    <div class="mb-6">
-        <p class="text-sm font-semibold uppercase tracking-[0.25em] text-slate-400">Cadastro</p>
-        <h3 class="mt-2 text-2xl font-extrabold tracking-tight">{% if object %}Atualize os dados do produto{% else %}Cadastre um novo produto{% endif %}</h3>
-        <p class="mt-2 text-sm text-slate-500">Defina os dados principais do item e o limite minimo para alerta de estoque.</p>
-    </div>
-    <form method="post" class="grid gap-5 md:grid-cols-2">
-        {% csrf_token %}
-        {% for field in form %}
-            <div class="{% if field.name == 'active' %}md:col-span-2{% endif %}">
-                <label for="{{ field.id_for_label }}" class="mb-2 block text-sm font-semibold text-slate-700">{{ field.label }}</label>
-                {% if field.name == "active" %}
-                    <label class="flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-3">
+<section class="card shadow-sm border-0" style="max-width: 960px;">
+    <div class="card-body">
+        <h3 class="h5 mb-3">{% if object %}Atualize os dados do produto{% else %}Cadastre um novo produto{% endif %}</h3>
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="{% if field.name == 'active' %}col-12{% else %}col-md-6{% endif %}">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {% if field.name == 'active' %}
+                        <div class="form-check border rounded p-3">
+                            {{ field }}
+                            <label class="form-check-label" for="{{ field.id_for_label }}">Produto disponivel para movimentacao</label>
+                        </div>
+                    {% else %}
                         {{ field }}
-                        <span class="text-sm text-slate-600">Produto disponivel para movimentacao</span>
-                    </label>
-                {% else %}
-                    {{ field }}
-                {% endif %}
-                {% if field.help_text %}
-                    <p class="mt-1 text-xs text-slate-500">{{ field.help_text }}</p>
-                {% endif %}
-                {% for error in field.errors %}
-                    <p class="mt-1 text-sm text-rose-600">{{ error }}</p>
-                {% endfor %}
+                    {% endif %}
+                    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                    {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                </div>
+            {% endfor %}
+            <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                <a href="{% url 'inventory:product-list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                <button class="btn btn-primary">Salvar produto</button>
             </div>
-        {% endfor %}
-        <div class="md:col-span-2 flex items-center justify-end gap-3 pt-2">
-            <a href="{% url 'inventory:product-list' %}" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Cancelar</a>
-            <button class="rounded-2xl bg-brand-500 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-600">Salvar produto</button>
-        </div>
-    </form>
+        </form>
+    </div>
 </section>
 {% endblock %}

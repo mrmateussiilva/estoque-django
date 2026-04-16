@@ -85,3 +85,32 @@ python manage.py createsuperuser
 ```
 
 No admin, associe usuarios a empresas criando ou editando `UserProfile`.
+
+## Deploy na Vercel (Django)
+
+O projeto agora esta configurado para deploy na Vercel com runtime Python via `api/index.py` e `vercel.json`.
+
+### 1) Variaveis de ambiente recomendadas
+
+Configure no painel da Vercel:
+
+- `DJANGO_SECRET_KEY`: chave secreta forte para producao.
+- `DJANGO_DEBUG`: `False` em producao.
+- `DJANGO_ALLOWED_HOSTS`: por exemplo `.vercel.app,seu-dominio.com`.
+- `DJANGO_CSRF_TRUSTED_ORIGINS`: por exemplo `https://seu-projeto.vercel.app,https://seu-dominio.com`.
+- `DATABASE_URL`: URL de banco Postgres (Neon, Supabase, etc).
+
+### 2) Banco de dados
+
+Em producao, use Postgres via `DATABASE_URL`. O SQLite local nao e recomendado para Vercel.
+
+### 3) Comandos uteis antes do deploy
+
+```bash
+python manage.py check --deploy
+python manage.py migrate
+```
+
+### 4) Observacao sobre migracoes
+
+Em Vercel, migracoes nao rodam automaticamente. Execute `python manage.py migrate` conectado ao mesmo banco de producao sempre que houver novas migracoes.

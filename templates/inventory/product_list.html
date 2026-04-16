@@ -4,119 +4,101 @@
 {% block page_title %}Produtos{% endblock %}
 
 {% block content %}
-<section class="space-y-6">
-    <div class="rounded-[2rem] border border-stone-200 bg-white p-6 shadow-sm">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+<section class="vstack gap-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-body d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-end">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">Catalogo</p>
-                <h3 class="mt-2 text-3xl font-extrabold tracking-tight">Produtos da operacao</h3>
-                <p class="mt-3 max-w-2xl text-sm leading-7 text-slate-500">Cadastre, organize e acompanhe o comportamento do estoque com leitura limpa, filtros objetivos e acesso rapido aos detalhes.</p>
+                <p class="text-uppercase small text-secondary fw-semibold mb-1">Catalogo</p>
+                <h3 class="h4 mb-1">Produtos da operacao</h3>
+                <p class="text-secondary mb-0">Cadastre e acompanhe os itens da empresa com filtros e acesso rapido.</p>
             </div>
-            <div class="flex flex-wrap gap-3">
-                <a href="{% url 'inventory:stock-list' %}" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Ver estoque atual</a>
-                <a href="{% url 'inventory:product-create' %}" class="rounded-2xl bg-[#d9f06b] px-4 py-3 text-sm font-semibold text-slate-950 hover:bg-[#cfe55e]">Novo produto</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            <h3 class="text-lg font-bold">Lista completa</h3>
-            <p class="text-sm text-slate-500">Visao consolidada dos produtos da empresa.</p>
-        </div>
-        <div class="flex flex-wrap gap-3">
-            <a href="{% url 'inventory:product-export' %}{% querystring %}" class="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-stone-50">Exportar CSV</a>
-            <div class="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-slate-500">
-                {{ page_obj.paginator.count }} produto{{ page_obj.paginator.count|pluralize }}
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{% url 'inventory:stock-list' %}" class="btn btn-outline-secondary">Ver estoque atual</a>
+                <a href="{% url 'inventory:product-create' %}" class="btn btn-primary">Novo produto</a>
             </div>
         </div>
     </div>
 
-    <form method="get" class="grid gap-4 rounded-[2rem] border border-stone-200 bg-white p-5 shadow-sm md:grid-cols-5">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Buscar</label>
-            <input type="search" name="q" value="{{ filters.q }}" placeholder="Nome, SKU ou categoria">
+            <h3 class="h5 mb-0">Lista completa</h3>
+            <small class="text-secondary">Visao consolidada dos produtos.</small>
         </div>
-        <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Categoria</label>
-            <select name="category">
-                <option value="">Todas</option>
-                {% for category in categories %}
-                    <option value="{{ category.pk }}" {% if filters.category == category.pk|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
-                {% endfor %}
-            </select>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'inventory:product-export' %}{% querystring %}" class="btn btn-outline-secondary btn-sm">Exportar CSV</a>
+            <span class="badge text-bg-light border">{{ page_obj.paginator.count }} produto{{ page_obj.paginator.count|pluralize }}</span>
         </div>
-        <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Status do produto</label>
-            <select name="active">
-                <option value="">Todos</option>
-                <option value="true" {% if filters.active == 'true' %}selected{% endif %}>Ativos</option>
-                <option value="false" {% if filters.active == 'false' %}selected{% endif %}>Inativos</option>
-            </select>
-        </div>
-        <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Saldo</label>
-            <select name="stock_status">
-                <option value="">Todos</option>
-                <option value="normal" {% if filters.stock_status == 'normal' %}selected{% endif %}>Normal</option>
-                <option value="low" {% if filters.stock_status == 'low' %}selected{% endif %}>Baixo</option>
-            </select>
-        </div>
-        <div>
-            <label class="mb-2 block text-sm font-semibold text-slate-700">Ordenar por</label>
-            <select name="ordering">
-                <option value="name" {% if filters.ordering == 'name' %}selected{% endif %}>Nome</option>
-                <option value="sku" {% if filters.ordering == 'sku' %}selected{% endif %}>SKU</option>
-                <option value="category" {% if filters.ordering == 'category' %}selected{% endif %}>Categoria</option>
-                <option value="stock_desc" {% if filters.ordering == 'stock_desc' %}selected{% endif %}>Maior saldo</option>
-                <option value="stock_asc" {% if filters.ordering == 'stock_asc' %}selected{% endif %}>Menor saldo</option>
-                <option value="recent" {% if filters.ordering == 'recent' %}selected{% endif %}>Mais recentes</option>
-            </select>
-        </div>
-        <div class="md:col-span-5 flex items-center justify-end gap-3">
-            <a href="{% url 'inventory:product-list' %}" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">Limpar</a>
-            <button class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800">Aplicar filtros</button>
+    </div>
+
+    <form method="get" class="card shadow-sm border-0">
+        <div class="card-body row g-3 align-items-end">
+            <div class="col-md-6 col-lg-2">
+                <label class="form-label">Buscar</label>
+                <input class="form-control" type="search" name="q" value="{{ filters.q }}" placeholder="Nome, SKU ou categoria">
+            </div>
+            <div class="col-md-6 col-lg-2">
+                <label class="form-label">Categoria</label>
+                <select class="form-select" name="category">
+                    <option value="">Todas</option>
+                    {% for category in categories %}<option value="{{ category.pk }}" {% if filters.category == category.pk|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6 col-lg-2">
+                <label class="form-label">Status do produto</label>
+                <select class="form-select" name="active">
+                    <option value="">Todos</option>
+                    <option value="true" {% if filters.active == 'true' %}selected{% endif %}>Ativos</option>
+                    <option value="false" {% if filters.active == 'false' %}selected{% endif %}>Inativos</option>
+                </select>
+            </div>
+            <div class="col-md-6 col-lg-2">
+                <label class="form-label">Saldo</label>
+                <select class="form-select" name="stock_status">
+                    <option value="">Todos</option>
+                    <option value="normal" {% if filters.stock_status == 'normal' %}selected{% endif %}>Normal</option>
+                    <option value="low" {% if filters.stock_status == 'low' %}selected{% endif %}>Baixo</option>
+                </select>
+            </div>
+            <div class="col-md-6 col-lg-2">
+                <label class="form-label">Ordenar por</label>
+                <select class="form-select" name="ordering">
+                    <option value="name" {% if filters.ordering == 'name' %}selected{% endif %}>Nome</option>
+                    <option value="sku" {% if filters.ordering == 'sku' %}selected{% endif %}>SKU</option>
+                    <option value="category" {% if filters.ordering == 'category' %}selected{% endif %}>Categoria</option>
+                    <option value="stock_desc" {% if filters.ordering == 'stock_desc' %}selected{% endif %}>Maior saldo</option>
+                    <option value="stock_asc" {% if filters.ordering == 'stock_asc' %}selected{% endif %}>Menor saldo</option>
+                    <option value="recent" {% if filters.ordering == 'recent' %}selected{% endif %}>Mais recentes</option>
+                </select>
+            </div>
+            <div class="col-lg-2 d-flex gap-2 justify-content-lg-end">
+                <a href="{% url 'inventory:product-list' %}" class="btn btn-outline-secondary w-100">Limpar</a>
+                <button class="btn btn-dark w-100">Filtrar</button>
+            </div>
         </div>
     </form>
 
-    <div class="overflow-hidden rounded-[2rem] border border-stone-200 bg-white shadow-sm">
-        <table class="min-w-full divide-y divide-slate-100 text-sm">
-            <thead class="bg-stone-50 text-left text-slate-500">
-                <tr>
-                    <th class="px-5 py-4 font-semibold">Nome</th>
-                    <th class="px-5 py-4 font-semibold">SKU</th>
-                    <th class="px-5 py-4 font-semibold">Categoria</th>
-                    <th class="px-5 py-4 font-semibold">Saldo</th>
-                    <th class="px-5 py-4 font-semibold">Status</th>
-                    <th class="px-5 py-4 font-semibold text-right">Acoes</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 bg-white">
-                {% for product in products %}
-                    <tr>
-                        <td class="px-5 py-4">
-                            <p class="font-semibold">{{ product.name }}</p>
-                            <p class="text-xs text-slate-500">{{ product.get_unit_display }}</p>
-                        </td>
-                        <td class="px-5 py-4 text-slate-600">{{ product.sku }}</td>
-                        <td class="px-5 py-4 text-slate-600">{{ product.category.name }}</td>
-                        <td class="px-5 py-4 font-semibold">{{ product.current_stock }}</td>
-                        <td class="px-5 py-4">
-                            <span class="rounded-full px-3 py-1 text-xs font-semibold {% if product.current_stock <= product.minimum_stock %}bg-amber-100 text-amber-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
-                                {% if product.current_stock <= product.minimum_stock %}Baixo{% else %}Normal{% endif %}
-                            </span>
-                        </td>
-                        <td class="px-5 py-4 text-right">
-                            <a href="{{ product.get_absolute_url }}" class="inline-flex rounded-xl border border-stone-200 px-3 py-2 font-semibold text-slate-700 hover:bg-stone-50">Abrir</a>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6" class="px-5 py-12 text-center text-slate-500">Nenhum produto cadastrado.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>Nome</th><th>SKU</th><th>Categoria</th><th>Saldo</th><th>Status</th><th class="text-end">Acoes</th></tr>
+                </thead>
+                <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <td><div class="fw-semibold">{{ product.name }}</div><small class="text-secondary">{{ product.get_unit_display }}</small></td>
+                            <td>{{ product.sku }}</td>
+                            <td>{{ product.category.name }}</td>
+                            <td class="fw-semibold">{{ product.current_stock }}</td>
+                            <td>{% if product.current_stock <= product.minimum_stock %}<span class="badge text-bg-warning">Baixo</span>{% else %}<span class="badge text-bg-success">Normal</span>{% endif %}</td>
+                            <td class="text-end"><a href="{{ product.get_absolute_url }}" class="btn btn-sm btn-outline-secondary">Abrir</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="6" class="text-center py-4 text-secondary">Nenhum produto cadastrado.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     {% include "components/pagination.html" %}

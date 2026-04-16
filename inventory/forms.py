@@ -16,6 +16,13 @@ class ProductForm(forms.ModelForm):
         self.company = company
         self.fields["category"].queryset = Category.objects.for_company(company).order_by("name")
         self.fields["category"].required = False
+        for name, field in self.fields.items():
+            if name == "active":
+                field.widget.attrs["class"] = "form-check-input"
+            elif isinstance(field.widget, forms.Select):
+                field.widget.attrs["class"] = "form-select"
+            else:
+                field.widget.attrs["class"] = "form-control"
 
     def clean(self):
         cleaned_data = super().clean()
@@ -62,6 +69,13 @@ class StockMovementForm(forms.ModelForm):
         self.company = company
         self.fields["product"].queryset = Product.objects.for_company(company).order_by("name")
         self.fields["created_at"].input_formats = ["%Y-%m-%dT%H:%M"]
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.Select):
+                field.widget.attrs["class"] = "form-select"
+            elif isinstance(field.widget, forms.Textarea):
+                field.widget.attrs["class"] = "form-control"
+            else:
+                field.widget.attrs["class"] = "form-control"
 
     def clean_product(self):
         product = self.cleaned_data["product"]
