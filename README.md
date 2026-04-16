@@ -105,6 +105,7 @@ Configure no painel da Vercel:
 
 Em producao, use Postgres via `DATABASE_URL`. O SQLite local nao e recomendado para Vercel.
 Sem `DATABASE_URL`, o app cai em SQLite temporario em `/tmp/db.sqlite3` (ephemero), util apenas para teste rapido.
+Nesse modo (Vercel + sem `DATABASE_URL`), o entrypoint executa `migrate` automaticamente e pode popular dados demo via `seed_mvp`.
 
 ### 3) Comandos uteis antes do deploy
 
@@ -116,3 +117,4 @@ python manage.py migrate
 ### 4) Observacao sobre migracoes
 
 Em Vercel, migracoes nao rodam automaticamente. Execute `python manage.py migrate` conectado ao mesmo banco de producao sempre que houver novas migracoes.
+Excecao: se estiver sem `DATABASE_URL` (fallback SQLite em `/tmp`), o app roda auto-migrate no startup (`VERCEL_AUTO_MIGRATE=true`) e opcionalmente seed demo (`VERCEL_AUTO_SEED_DEMO=true`).
