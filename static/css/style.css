@@ -1295,8 +1295,29 @@ body.sidebar-collapsed .main-wrapper {
    MODAIS BOOTSTRAP - RUBY THEME
    ======================================== */
 
+.modal {
+    transition: opacity 0.15s ease-in-out !important;
+}
+
+.modal.fade {
+    opacity: 0;
+}
+
+.modal.show {
+    opacity: 1;
+}
+
 .modal-backdrop {
     backdrop-filter: blur(4px);
+}
+
+.modal-dialog {
+    transform: scale(0.95);
+    transition: transform 0.15s ease-in-out !important;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
 }
 
 .modal-content {
