@@ -1,0 +1,139 @@
+{% load static %}
+
+<!-- Modal Novo Produto -->
+<div class="modal fade" id="modalProduct" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-box-seam"></i>
+                    {% if product_form.instance.pk %}Editar{% else %}Novo{% endif %} Produto
+                </h5>
+                <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Fechar">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="productForm" method="post" action="{{ product_form_action|default:'#' }}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="{{ product_form.name.id_for_label }}" class="form-label-custom">{{ product_form.name.label }}</label>
+                        {{ product_form.name }}
+                        {% if product_form.name.help_text %}<small class="form-hint">{{ product_form.name.help_text }}</small>{% endif %}
+                        {% for error in product_form.name.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ product_form.sku.id_for_label }}" class="form-label-custom">{{ product_form.sku.label }}</label>
+                            {{ product_form.sku }}
+                            {% if product_form.sku.help_text %}<small class="form-hint">{{ product_form.sku.help_text }}</small>{% endif %}
+                            {% for error in product_form.sku.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ product_form.unit.id_for_label }}" class="form-label-custom">{{ product_form.unit.label }}</label>
+                            {{ product_form.unit }}
+                            {% for error in product_form.unit.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ product_form.category.id_for_label }}" class="form-label-custom">{{ product_form.category.label }}</label>
+                        {{ product_form.category }}
+                        {% for error in product_form.category.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ product_form.new_category.id_for_label }}" class="form-label-custom">{{ product_form.new_category.label }}</label>
+                        {{ product_form.new_category }}
+                        <small class="form-hint">Ou selecione uma categoria acima</small>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ product_form.minimum_stock.id_for_label }}" class="form-label-custom">{{ product_form.minimum_stock.label }}</label>
+                            {{ product_form.minimum_stock }}
+                            {% if product_form.minimum_stock.help_text %}<small class="form-hint">{{ product_form.minimum_stock.help_text }}</small>{% endif %}
+                            {% for error in product_form.minimum_stock.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="form-group form-group--checkbox">
+                            <label class="form-label-custom">&nbsp;</label>
+                            <div class="form-check-custom">
+                                {{ product_form.active }}
+                                <label class="form-check-label" for="{{ product_form.active.id_for_label }}">
+                                    {{ product_form.active.label }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if product_form.non_field_errors %}
+                    <div class="form-alert form-alert--danger">
+                        {% for error in product_form.non_field_errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" form="productForm" class="btn-modal-submit">
+                    <i class="bi bi-check-lg"></i>
+                    Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modalEl = document.getElementById('modalProduct');
+    const form = document.getElementById('productForm');
+    
+    if (modalEl && form) {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    modal.hide();
+                    form.reset();
+                    showToast('Produto salvo com sucesso!', 'success');
+                    if (data.redirect_url) {
+                        window.location.href = data.redirect_url;
+                    } else if (typeof refreshPage === 'function') {
+                        refreshPage();
+                    }
+                } else {
+                    modalEl.querySelector('.modal-body').innerHTML = data.html_form;
+                    rebindProductForm();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Erro ao processar requisição.', 'danger');
+            });
+        });
+        
+        function rebindProductForm() {
+            const newForm = document.getElementById('productForm');
+            if (newForm) {
+                newForm.addEventListener('submit', arguments.callee);
+            }
+        }
+    }
+});
+</script>

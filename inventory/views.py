@@ -1,10 +1,12 @@
 import csv
+import json
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models
 from django.db.models import Q
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
@@ -21,17 +23,34 @@ class CompanyScopedMixin(LoginRequiredMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
+class FormModalMixin:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return context
+        context["movement_form"] = StockMovementForm(company=self.request.company)
+        context["product_form"] = ProductForm(company=self.request.company)
+        context["product_form_action"] = reverse_lazy("inventory:product-create")
+        return context
+
+
 class ProductQueryMixin(CompanyScopedMixin):
     def get_queryset(self):
-        return Product.objects.for_company(self.request.company).select_related("category").with_stock()
+        return (
+            Product.objects.for_company(self.request.company)
+            .select_related("category")
+            .with_stock()
+        )
 
 
 class MovementQueryMixin(CompanyScopedMixin):
     def get_queryset(self):
-        return StockMovement.objects.for_company(self.request.company).select_related("product__category")
+        return StockMovement.objects.for_company(self.request.company).select_related(
+            "product__category"
+        )
 
 
-class ProductListView(ProductQueryMixin, ListView):
+class ProductListView(FormModalMixin, ProductQueryMixin, ListView):
     model = Product
     template_name = "inventory/product_list.html"
     context_object_name = "products"
@@ -47,7 +66,9 @@ class ProductListView(ProductQueryMixin, ListView):
 
         if search:
             queryset = queryset.filter(
-                Q(name__icontains=search) | Q(sku__icontains=search) | Q(category__name__icontains=search)
+                Q(name__icontains=search)
+                | Q(sku__icontains=search)
+                | Q(category__name__icontains=search)
             )
         if category_id:
             queryset = queryset.filter(category_id=category_id)
@@ -88,7 +109,9 @@ class ProductDetailView(ProductQueryMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["recent_movements"] = self.object.movements.select_related("created_by")[:10]
+        context["recent_movements"] = self.object.movements.select_related(
+            "created_by"
+        )[:10]
         return context
 
 
@@ -96,6 +119,7 @@ class ProductCreateView(CompanyScopedMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = "inventory/product_form.html"
+    success_url = reverse_lazy("inventory:product-list")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -105,7 +129,26 @@ class ProductCreateView(CompanyScopedMixin, CreateView):
     def form_valid(self, form):
         form.instance.company = self.request.company
         messages.success(self.request, "Produto criado com sucesso.")
+
+        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(
+                {"success": True, "redirect_url": str(self.success_url)}
+            )
+
         return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            html_form = render_to_string(
+                "inventory/modal_product.html",
+                {
+                    "product_form": form,
+                    "product_form_action": reverse_lazy("inventory:product-create"),
+                },
+                request=self.request,
+            )
+            return JsonResponse({"success": False, "html_form": html_form})
+        return super().form_invalid(form)
 
 
 class ProductUpdateView(ProductQueryMixin, UpdateView):
@@ -148,10 +191,26 @@ class MovementCreateView(CompanyScopedMixin, CreateView):
         form.instance.company = self.request.company
         form.instance.created_by = self.request.user
         messages.success(self.request, "Movimentacao registrada com sucesso.")
+
+        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return JsonResponse(
+                {"success": True, "redirect_url": str(self.success_url)}
+            )
+
         return super().form_valid(form)
 
+    def form_invalid(self, form):
+        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            html_form = render_to_string(
+                "inventory/modal_movement.html",
+                {"movement_form": form},
+                request=self.request,
+            )
+            return JsonResponse({"success": False, "html_form": html_form})
+        return super().form_invalid(form)
 
-class MovementListView(MovementQueryMixin, ListView):
+
+class MovementListView(FormModalMixin, MovementQueryMixin, ListView):
     model = StockMovement
     template_name = "inventory/movement_list.html"
     context_object_name = "movements"
@@ -184,7 +243,11 @@ class MovementListView(MovementQueryMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["products"] = Product.objects.for_company(self.request.company).select_related("category").order_by("name")
+        context["products"] = (
+            Product.objects.for_company(self.request.company)
+            .select_related("category")
+            .order_by("name")
+        )
         context["movement_types"] = StockMovement.TYPE_CHOICES
         context["filters"] = {
             "product": self.request.GET.get("product", ""),
@@ -196,21 +259,27 @@ class MovementListView(MovementQueryMixin, ListView):
         return context
 
 
-class StockListView(CompanyScopedMixin, ListView):
+class StockListView(FormModalMixin, CompanyScopedMixin, ListView):
     model = Product
     template_name = "inventory/stock_list.html"
     context_object_name = "products"
     paginate_by = 20
 
     def get_queryset(self):
-        queryset = Product.objects.for_company(self.request.company).select_related("category").with_stock()
+        queryset = (
+            Product.objects.for_company(self.request.company)
+            .select_related("category")
+            .with_stock()
+        )
         search = self.request.GET.get("q", "").strip()
         category_id = self.request.GET.get("category")
         stock_status = self.request.GET.get("stock_status")
         ordering = self.request.GET.get("ordering", "name")
         if search:
             queryset = queryset.filter(
-                Q(name__icontains=search) | Q(sku__icontains=search) | Q(category__name__icontains=search)
+                Q(name__icontains=search)
+                | Q(sku__icontains=search)
+                | Q(category__name__icontains=search)
             )
         if category_id:
             queryset = queryset.filter(category_id=category_id)
@@ -266,7 +335,17 @@ class ProductExportView(CsvExportBaseView):
         products = queryset.get_queryset()
         response = HttpResponse(content_type="text/csv; charset=utf-8")
         writer = csv.writer(response)
-        writer.writerow(["Nome", "SKU", "Categoria", "Saldo atual", "Estoque minimo", "Status", "Ativo"])
+        writer.writerow(
+            [
+                "Nome",
+                "SKU",
+                "Categoria",
+                "Saldo atual",
+                "Estoque minimo",
+                "Status",
+                "Ativo",
+            ]
+        )
         for product in products:
             writer.writerow(
                 [
@@ -275,7 +354,9 @@ class ProductExportView(CsvExportBaseView):
                     product.category.name,
                     product.current_stock,
                     product.minimum_stock,
-                    "Baixo" if product.current_stock <= product.minimum_stock else "Normal",
+                    "Baixo"
+                    if product.current_stock <= product.minimum_stock
+                    else "Normal",
                     "Sim" if product.active else "Nao",
                 ]
             )
@@ -291,7 +372,9 @@ class StockExportView(CsvExportBaseView):
         products = queryset.get_queryset()
         response = HttpResponse(content_type="text/csv; charset=utf-8")
         writer = csv.writer(response)
-        writer.writerow(["Produto", "SKU", "Categoria", "Saldo atual", "Estoque minimo", "Status"])
+        writer.writerow(
+            ["Produto", "SKU", "Categoria", "Saldo atual", "Estoque minimo", "Status"]
+        )
         for product in products:
             writer.writerow(
                 [
@@ -300,7 +383,9 @@ class StockExportView(CsvExportBaseView):
                     product.category.name,
                     product.current_stock,
                     product.minimum_stock,
-                    "Baixo" if product.current_stock <= product.minimum_stock else "Normal",
+                    "Baixo"
+                    if product.current_stock <= product.minimum_stock
+                    else "Normal",
                 ]
             )
         return response
@@ -315,7 +400,18 @@ class MovementExportView(CsvExportBaseView):
         movements = queryset.get_queryset()
         response = HttpResponse(content_type="text/csv; charset=utf-8")
         writer = csv.writer(response)
-        writer.writerow(["Data", "Produto", "SKU", "Categoria", "Tipo", "Quantidade", "Motivo", "Observacao"])
+        writer.writerow(
+            [
+                "Data",
+                "Produto",
+                "SKU",
+                "Categoria",
+                "Tipo",
+                "Quantidade",
+                "Motivo",
+                "Observacao",
+            ]
+        )
         for movement in movements:
             writer.writerow(
                 [

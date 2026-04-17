@@ -2,9 +2,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models
 from django.db.models import F, Sum, Value
 from django.db.models.functions import Coalesce, TruncDate
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import TemplateView
 
+from inventory.forms import ProductForm, StockMovementForm
 from inventory.models import Product, StockMovement
 
 
@@ -23,17 +25,22 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         products = Product.objects.for_company(company)
         stock_qs = products.select_related("category").with_stock().with_last_movement()
-        movements = StockMovement.objects.for_company(company).select_related("product__category")
+        movements = StockMovement.objects.for_company(company).select_related(
+            "product__category"
+        )
         period_movements = movements.filter(created_at__gte=since)
-        low_stock_count = stock_qs.filter(active=True, current_stock__lte=F("minimum_stock")).count()
-        period_entries = period_movements.filter(movement_type=StockMovement.TYPE_IN).aggregate(
-            total=Coalesce(Sum("quantity"), Value(0))
-        )["total"]
-        period_exits = period_movements.filter(movement_type=StockMovement.TYPE_OUT).aggregate(
-            total=Coalesce(Sum("quantity"), Value(0))
-        )["total"]
+        low_stock_count = stock_qs.filter(
+            active=True, current_stock__lte=F("minimum_stock")
+        ).count()
+        period_entries = period_movements.filter(
+            movement_type=StockMovement.TYPE_IN
+        ).aggregate(total=Coalesce(Sum("quantity"), Value(0)))["total"]
+        period_exits = period_movements.filter(
+            movement_type=StockMovement.TYPE_OUT
+        ).aggregate(total=Coalesce(Sum("quantity"), Value(0)))["total"]
         products_without_recent_movement = stock_qs.filter(
-            models.Q(last_movement_at__lt=since) | models.Q(last_movement_at__isnull=True)
+            models.Q(last_movement_at__lt=since)
+            | models.Q(last_movement_at__isnull=True)
         ).count()
         daily_totals = (
             period_movements.annotate(day=TruncDate("created_at"))
@@ -60,7 +67,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             chart_entries.append(entries_by_day.get(label, 0))
             chart_exits.append(exits_by_day.get(label, 0))
 
-        low_stock_products = stock_qs.filter(active=True, current_stock__lte=F("minimum_stock")).order_by("current_stock", "name")[:6]
+        low_stock_products = stock_qs.filter(
+            active=True, current_stock__lte=F("minimum_stock")
+        ).order_by("current_stock", "name")[:6]
 
         context.update(
             {
@@ -75,8 +84,15 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 "movement_chart_labels": chart_labels,
                 "movement_chart_entries": chart_entries,
                 "movement_chart_exits": chart_exits,
-                "low_stock_chart_labels": [product.name for product in low_stock_products],
-                "low_stock_chart_values": [product.current_stock for product in low_stock_products],
+                "low_stock_chart_labels": [
+                    product.name for product in low_stock_products
+                ],
+                "low_stock_chart_values": [
+                    product.current_stock for product in low_stock_products
+                ],
+                "movement_form": StockMovementForm(company=company),
+                "product_form": ProductForm(company=company),
+                "product_form_action": reverse_lazy("inventory:product-create"),
             }
         )
         return context
