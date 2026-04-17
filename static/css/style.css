@@ -1,49 +1,50 @@
 /* ========================================
-   FINDERBIT ESTOQUE - Dark Mode Professional
+   FINDERBIT ESTOQUE - Emerald & Slate Design System
    ======================================== */
 
 :root {
     /* === FUNDOS === */
-    --bg-body: #121212;
-    --bg-surface: #1e1e1e;
-    --bg-surface-elevated: #262626;
-    --bg-surface-hover: #2d2d2d;
-    --bg-sidebar: #0f0f0f;
-    --bg-input: #1e1e1e;
+    --bg-body: #0b0f1a;
+    --bg-surface: #161b2b;
+    --bg-surface-elevated: #1e2536;
+    --bg-surface-hover: #252d40;
+    --bg-sidebar: #0d1117;
+    --bg-input: #1e2536;
 
-    /* === COR DA MARCA - VERDE VIBRANTE === */
-    --brand: #a3e635;
-    --brand-hover: #bef264;
-    --brand-text: #1a1a1a;
-    --brand-bg: rgba(163, 230, 53, 0.12);
+    /* === COR DA MARCA - EMERALD === */
+    --brand: #10b981;
+    --brand-hover: #059669;
+    --brand-text: #ffffff;
+    --brand-bg: rgba(16, 185, 129, 0.1);
+    --brand-glow: rgba(16, 185, 129, 0.3);
 
     /* === CORES DE ESTADO === */
-    --success: #22c55e;
-    --success-bg: rgba(34, 197, 94, 0.12);
-    --success-text: #4ade80;
+    --success: #10b981;
+    --success-bg: rgba(16, 185, 129, 0.1);
+    --success-text: #34d399;
     
     --warning: #f59e0b;
-    --warning-bg: rgba(245, 158, 11, 0.12);
+    --warning-bg: rgba(245, 158, 11, 0.1);
     --warning-text: #fbbf24;
     
-    --danger: #ef4444;
-    --danger-bg: rgba(239, 68, 68, 0.12);
-    --danger-text: #f87171;
+    --danger: #f43f5e;
+    --danger-bg: rgba(244, 63, 94, 0.1);
+    --danger-text: #fb7185;
     
     --info: #06b6d4;
-    --info-bg: rgba(6, 182, 212, 0.12);
+    --info-bg: rgba(6, 182, 212, 0.1);
     --info-text: #22d3ee;
 
     /* === TEXTO === */
-    --text-primary: #f5f5f5;
-    --text-secondary: #a3a3a3;
-    --text-muted: #737373;
-    --text-inverse: #1a1a1a;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-inverse: #ffffff;
 
     /* === BORDAS === */
-    --border-color: #333333;
-    --border-subtle: #262626;
-    --border-focus: #a3e635;
+    --border-color: #1e293b;
+    --border-subtle: #1e293b;
+    --border-focus: #10b981;
 
     /* === ESPAÇAMENTO === */
     --radius-sm: 4px;
@@ -53,7 +54,7 @@
 
     /* === SOMBRAS === */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
 
     /* === TIPOGRAFIA === */
@@ -123,7 +124,7 @@ body {
     font-weight: 600;
     padding: 10px 20px;
     border-radius: var(--radius);
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -133,7 +134,11 @@ body {
     background-color: var(--brand-hover);
     color: var(--brand-text);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(163, 230, 53, 0.25);
+    box-shadow: 0 0 15px var(--brand-glow), 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.btn-brand:active {
+    transform: translateY(0);
 }
 
 .btn-brand svg {
@@ -148,12 +153,13 @@ body {
     font-weight: 500;
     padding: 10px 20px;
     border-radius: var(--radius);
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
 }
 
 .btn-outline-brand:hover {
     background-color: var(--brand);
     color: var(--brand-text);
+    box-shadow: 0 0 12px var(--brand-glow);
 }
 
 .btn-ghost {
@@ -233,19 +239,20 @@ body {
 }
 
 /* ========================================
-   BADGES DE STATUS
+   BADGES DE STATUS (Glass Effect)
    ======================================== */
 
 .badge-custom {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 4px 10px;
+    padding: 5px 10px;
     font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.04em;
     border-radius: var(--radius-sm);
+    backdrop-filter: blur(8px);
 }
 
 .badge-custom::before {
@@ -253,62 +260,73 @@ body {
     width: 6px;
     height: 6px;
     border-radius: 50%;
+    flex-shrink: 0;
 }
 
 .badge-success-custom {
-    background-color: var(--success-bg);
-    color: var(--success-text);
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .badge-success-custom::before {
-    background-color: var(--success);
+    background-color: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
 }
 
 .badge-warning-custom {
-    background-color: var(--warning-bg);
-    color: var(--warning-text);
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .badge-warning-custom::before {
-    background-color: var(--warning);
+    background-color: #f59e0b;
+    box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
 }
 
 .badge-danger-custom {
-    background-color: var(--danger-bg);
-    color: var(--danger-text);
+    background-color: rgba(244, 63, 94, 0.15);
+    color: #fb7185;
+    border: 1px solid rgba(244, 63, 94, 0.25);
 }
 
 .badge-danger-custom::before {
-    background-color: var(--danger);
+    background-color: #f43f5e;
+    box-shadow: 0 0 6px rgba(244, 63, 94, 0.5);
 }
 
 .badge-info-custom {
-    background-color: var(--info-bg);
-    color: var(--info-text);
+    background-color: rgba(6, 182, 212, 0.15);
+    color: #22d3ee;
+    border: 1px solid rgba(6, 182, 212, 0.25);
 }
 
 .badge-info-custom::before {
-    background-color: var(--info);
+    background-color: #06b6d4;
+    box-shadow: 0 0 6px rgba(6, 182, 212, 0.5);
 }
 
 .badge-entry-custom {
-    background-color: var(--success-bg);
-    color: var(--success-text);
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .badge-entry-custom::before {
-    background-color: var(--success);
+    background-color: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
 }
 
 .badge-exit-custom {
-    background-color: var(--danger-bg);
-    color: var(--danger-text);
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background-color: rgba(244, 63, 94, 0.15);
+    color: #fb7185;
+    border: 1px solid rgba(244, 63, 94, 0.25);
 }
 
 .badge-exit-custom::before {
-    background-color: var(--danger);
+    background-color: #f43f5e;
+    box-shadow: 0 0 6px rgba(244, 63, 94, 0.5);
 }
 
 /* ========================================
@@ -317,16 +335,18 @@ body {
 
 .metric-card {
     background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: 20px;
-    border-left: 4px solid;
-    transition: all 0.2s ease;
+    border-left: 2px solid;
+    transition: all 0.25s ease;
     height: 100%;
 }
 
 .metric-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow);
+    border-color: var(--border-color);
 }
 
 .metric-card--success {
@@ -354,10 +374,10 @@ body {
 }
 
 .metric-card__label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     color: var(--text-muted);
     margin-bottom: 8px;
 }
@@ -433,6 +453,7 @@ body {
 
 .filter-bar__btn--submit:hover {
     background-color: var(--brand-hover);
+    box-shadow: 0 0 12px var(--brand-glow);
 }
 
 .filter-bar__btn--clear {
@@ -502,18 +523,19 @@ body {
 }
 
 .page-header__label {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
     color: var(--text-muted);
 }
 
 .page-header__title {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
+    letter-spacing: -0.02em;
 }
 
 .page-header__actions {
@@ -899,6 +921,7 @@ input[type="datetime-local"].form-dark::-webkit-calendar-picker-indicator {
     border-radius: var(--radius);
     flex-shrink: 0;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px var(--brand-glow);
 }
 
 .sidebar-brand-text {
@@ -1012,11 +1035,13 @@ input[type="datetime-local"].form-dark::-webkit-calendar-picker-indicator {
     color: var(--brand-text);
     font-weight: 600;
     margin-top: 8px;
+    box-shadow: 0 0 12px var(--brand-glow);
 }
 
 .sidebar-cta:hover {
     background-color: var(--brand-hover);
     color: var(--brand-text);
+    box-shadow: 0 0 20px var(--brand-glow);
 }
 
 .sidebar-cta.active {
