@@ -6,23 +6,31 @@ from .models import Category, Product, StockMovement
 
 class ProductForm(forms.ModelForm):
     new_category = forms.CharField(
-        label="nova categoria",
+        label="Nova Categoria",
         required=False,
-        widget=forms.TextInput(attrs={"placeholder": "Ou crie uma nova categoria"}),
+        widget=forms.TextInput(
+            attrs={"placeholder": "Ou crie uma nova categoria", "class": "form-dark"}
+        ),
     )
 
     def __init__(self, *args, company=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.company = company
-        self.fields["category"].queryset = Category.objects.for_company(company).order_by("name")
+        self.fields["category"].queryset = Category.objects.for_company(
+            company
+        ).order_by("name")
         self.fields["category"].required = False
+
+        # Aplicar classes dark mode
         for name, field in self.fields.items():
             if name == "active":
-                field.widget.attrs["class"] = "form-check-input"
+                field.widget.attrs["class"] = "form-check-input form-check-custom"
+            elif name == "new_category":
+                pass  # Já configurado acima
             elif isinstance(field.widget, forms.Select):
-                field.widget.attrs["class"] = "form-select"
+                field.widget.attrs["class"] = "form-dark form-select"
             else:
-                field.widget.attrs["class"] = "form-control"
+                field.widget.attrs["class"] = "form-dark"
 
     def clean(self):
         cleaned_data = super().clean()
@@ -35,50 +43,98 @@ class ProductForm(forms.ModelForm):
 
     def save(self, commit=True):
         category = self.cleaned_data.get("category")
-        new_category = (self.cleaned_data.get("new_category") or "").strip()
+        new_category = (cleaned_data.get("new_category") or "").strip()
 
         if not category and new_category:
-            category, _ = Category.objects.get_or_create(company=self.company, name=new_category)
+            category, _ = Category.objects.get_or_create(
+                company=self.company, name=new_category
+            )
 
         self.instance.category = category
         return super().save(commit=commit)
 
     class Meta:
         model = Product
-        fields = ["name", "sku", "category", "new_category", "unit", "minimum_stock", "active"]
+        fields = [
+            "name",
+            "sku",
+            "category",
+            "new_category",
+            "unit",
+            "minimum_stock",
+            "active",
+        ]
         widgets = {
-            "name": forms.TextInput(attrs={"placeholder": "Ex.: Cafe Premium 500g"}),
-            "sku": forms.TextInput(attrs={"placeholder": "Ex.: CAFE-500"}),
-            "minimum_stock": forms.NumberInput(attrs={"min": 0}),
+            "name": forms.TextInput(
+                attrs={"placeholder": "Ex.: Cafe Premium 500g", "class": "form-dark"}
+            ),
+            "sku": forms.TextInput(
+                attrs={"placeholder": "Ex.: CAFE-500", "class": "form-dark"}
+            ),
+            "minimum_stock": forms.NumberInput(attrs={"min": 0, "class": "form-dark"}),
         }
 
 
 class StockMovementForm(forms.ModelForm):
     class Meta:
         model = StockMovement
-        fields = ["product", "movement_type", "quantity", "reason", "notes", "created_at"]
+        fields = [
+            "product",
+            "movement_type",
+            "quantity",
+            "reason",
+            "notes",
+            "created_at",
+        ]
         widgets = {
-            "quantity": forms.NumberInput(attrs={"min": 1}),
-            "reason": forms.TextInput(attrs={"placeholder": "Ex.: Compra, venda, ajuste inicial"}),
-            "notes": forms.Textarea(attrs={"rows": 3, "placeholder": "Detalhes opcionais"}),
-            "created_at": forms.DateTimeInput(attrs={"type": "datetime-local"}),
+            "product": forms.Select(
+                attrs={
+                    "class": "form-dark form-select",
+                    "placeholder": "Selecione o produto",
+                }
+            ),
+            "movement_type": forms.Select(attrs={"class": "form-dark form-select"}),
+            "quantity": forms.NumberInput(
+                attrs={"min": 1, "class": "form-dark", "placeholder": "0"}
+            ),
+            "reason": forms.TextInput(
+                attrs={
+                    "placeholder": "Ex.: Compra, venda, ajuste inicial",
+                    "class": "form-dark",
+                }
+            ),
+            "notes": forms.Textarea(
+                attrs={
+                    "rows": 3,
+                    "placeholder": "Detalhes opcionais sobre a movimentação",
+                    "class": "form-dark",
+                }
+            ),
+            "created_at": forms.DateTimeInput(
+                attrs={"type": "datetime-local", "class": "form-dark"}
+            ),
         }
 
     def __init__(self, *args, company=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.company = company
-        self.fields["product"].queryset = Product.objects.for_company(company).order_by("name")
+        self.fields["product"].queryset = Product.objects.for_company(company).order_by(
+            "name"
+        )
         self.fields["created_at"].input_formats = ["%Y-%m-%dT%H:%M"]
-        for field in self.fields.values():
+
+        for field_name, field in self.fields.items():
             if isinstance(field.widget, forms.Select):
-                field.widget.attrs["class"] = "form-select"
-            elif isinstance(field.widget, forms.Textarea):
-                field.widget.attrs["class"] = "form-control"
+                if "form-select" not in field.widget.attrs.get("class", ""):
+                    field.widget.attrs["class"] = "form-dark form-select"
+            elif field_name == "active":
+                pass
             else:
-                field.widget.attrs["class"] = "form-control"
+                if "class" not in field.widget.attrs:
+                    field.widget.attrs["class"] = "form-dark"
 
     def clean_product(self):
         product = self.cleaned_data["product"]
         if product.company != self.company:
-            raise ValidationError("Produto invalido para esta empresa.")
+            raise ValidationError("Produto inválido para esta empresa.")
         return product
