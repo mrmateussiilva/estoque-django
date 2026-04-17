@@ -22,9 +22,14 @@
                         <span>Estoque</span>
                     </div>
                 </a>
-                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
+                <div class="sidebar-header-actions">
+                    <button class="sidebar-theme-toggle" id="themeToggle" aria-label="Alternar tema">
+                        <i class="bi bi-moon-fill"></i>
+                    </button>
+                    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                </div>
             </div>
 
             <nav class="sidebar-nav">
@@ -125,13 +130,41 @@
         function refreshPage() {
             window.location.reload();
         }
+        
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+        
+        function updateThemeIcon(theme) {
+            const icon = document.querySelector('#themeToggle i');
+            if (icon) {
+                icon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+            }
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
 
         document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            
             const sidebar = document.getElementById('sidebar');
             const toggle = document.getElementById('sidebarToggle');
+            const themeToggle = document.getElementById('themeToggle');
             const overlay = document.getElementById('sidebarOverlay');
             const mobileToggle = document.getElementById('mobileToggle');
             const isMobile = window.innerWidth < 992;
+
+            if (themeToggle) {
+                themeToggle.addEventListener('click', toggleTheme);
+            }
 
             function toggleSidebar() {
                 if (isMobile) {

@@ -2,7 +2,7 @@
    FINDERBIT ESTOQUE - Ruby Red Design System
    ======================================== */
 
-:root {
+ :root {
     /* === FUNDOS === */
     --bg-body: #09090b;
     --bg-surface: #18181b;
@@ -21,19 +21,19 @@
     /* === CORES DE ESTADO === */
     --success: #e11d48;
     --success-bg: rgba(225, 29, 72, 0.1);
-    --success-text: #fb7185;
+    --success-text: #e11d48;
     
     --warning: #f59e0b;
     --warning-bg: rgba(245, 158, 11, 0.1);
-    --warning-text: #fbbf24;
+    --warning-text: #d97706;
     
     --danger: #e11d48;
     --danger-bg: rgba(225, 29, 72, 0.1);
-    --danger-text: #fb7185;
+    --danger-text: #e11d48;
     
     --info: #06b6d4;
     --info-bg: rgba(6, 182, 212, 0.1);
-    --info-text: #22d3ee;
+    --info-text: #0891b2;
 
     /* === TEXTO === */
     --text-primary: #ffffff;
@@ -63,6 +63,47 @@
 }
 
 /* ========================================
+   LIGHT MODE - Ruby Red Light Theme
+   ======================================== */
+
+[data-bs-theme="light"] {
+    --bg-body: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #f1f5f9;
+    --bg-surface-hover: #e2e8f0;
+    --bg-sidebar: #ffffff;
+    --bg-input: #ffffff;
+
+    --brand-bg: rgba(225, 29, 72, 0.08);
+    --brand-glow: rgba(225, 29, 72, 0.25);
+
+    --success-bg: #fff1f2;
+    --success-text: #e11d48;
+    
+    --warning-bg: #fffbeb;
+    --warning-text: #d97706;
+    
+    --danger-bg: #fff1f2;
+    --danger-text: #e11d48;
+    
+    --info-bg: #ecfeff;
+    --info-text: #0891b2;
+
+    --text-primary: #0f172a;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --text-inverse: #ffffff;
+
+    --border-color: #e2e8f0;
+    --border-subtle: #f1f5f9;
+    --border-focus: #e11d48;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+ /* ========================================
    BASE RESET
    ======================================== */
 
@@ -945,6 +986,37 @@ input[type="datetime-local"].form-dark::-webkit-calendar-picker-indicator {
     color: var(--text-primary);
 }
 
+.sidebar-header-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.sidebar-theme-toggle {
+    width: 28px;
+    height: 28px;
+    background-color: var(--bg-surface-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.sidebar-theme-toggle:hover {
+    background-color: var(--brand);
+    color: var(--brand-text);
+    border-color: var(--brand);
+}
+
+.sidebar-theme-toggle i {
+    font-size: 0.85rem;
+}
+
 .sidebar-toggle {
     width: 28px;
     height: 28px;
@@ -1552,4 +1624,174 @@ body.sidebar-collapsed .main-wrapper {
         right: 16px;
         bottom: 16px;
     }
+}
+
+/* ========================================
+   LIGHT MODE - OVERRIDES ESPECÍFICOS
+   ======================================== */
+
+[data-bs-theme="light"] .sidebar {
+    border-right: 1px solid var(--border-color);
+}
+
+[data-bs-theme="light"] .sidebar-header {
+    border-bottom-color: var(--border-color);
+}
+
+[data-bs-theme="light"] .sidebar-footer {
+    border-top-color: var(--border-color);
+}
+
+[data-bs-theme="light"] .sidebar-logo {
+    box-shadow: 0 2px 8px rgba(225, 29, 72, 0.3);
+}
+
+[data-bs-theme="light"] .sidebar-link {
+    color: var(--text-secondary);
+}
+
+[data-bs-theme="light"] .sidebar-link:hover {
+    background-color: var(--bg-surface-hover);
+    color: var(--text-primary);
+}
+
+[data-bs-theme="light"] .sidebar-link i {
+    color: var(--text-muted);
+}
+
+[data-bs-theme="light"] .sidebar-link:hover i {
+    color: var(--brand);
+}
+
+[data-bs-theme="light"] .sidebar-link.active {
+    background-color: var(--brand-bg);
+    border-left: 3px solid var(--brand);
+}
+
+[data-bs-theme="light"] .sidebar-link.active i {
+    color: var(--brand);
+}
+
+[data-bs-theme="light"] .sidebar-user__avatar {
+    background-color: var(--bg-surface-elevated);
+}
+
+[data-bs-theme="light"] .sidebar-user__avatar i {
+    color: var(--text-muted);
+}
+
+[data-bs-theme="light"] .sidebar-cta {
+    box-shadow: 0 2px 8px rgba(225, 29, 72, 0.25);
+}
+
+[data-bs-theme="light"] .table-custom thead {
+    background-color: #f1f5f9;
+}
+
+[data-bs-theme="light"] .table-custom th {
+    color: #475569;
+    border-bottom-color: var(--border-color);
+}
+
+[data-bs-theme="light"] .table-custom td {
+    border-bottom-color: var(--border-subtle);
+}
+
+[data-bs-theme="light"] .table-custom tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+[data-bs-theme="light"] .table-container {
+    border-color: var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+[data-bs-theme="light"] .filter-bar {
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+[data-bs-theme="light"] .form-dark {
+    background-color: #ffffff;
+    border-color: var(--border-color);
+}
+
+[data-bs-theme="light"] .form-dark:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.1);
+}
+
+[data-bs-theme="light"] .form-dark option {
+    background-color: #ffffff;
+}
+
+[data-bs-theme="light"] input[type="datetime-local"].form-dark::-webkit-calendar-picker-indicator {
+    filter: none;
+    opacity: 0.6;
+}
+
+[data-bs-theme="light"] .metric-card {
+    box-shadow: var(--shadow);
+}
+
+[data-bs-theme="light"] .metric-card:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+[data-bs-theme="light"] .action-card {
+    box-shadow: var(--shadow);
+}
+
+[data-bs-theme="light"] .item-list {
+    border-color: var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+[data-bs-theme="light"] .item-list__row:hover {
+    background-color: #f8fafc;
+}
+
+[data-bs-theme="light"] .modal-content {
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-lg);
+}
+
+[data-bs-theme="light"] .modal-header {
+    border-bottom-color: var(--border-color);
+}
+
+[data-bs-theme="light"] .modal-footer {
+    border-top-color: var(--border-color);
+}
+
+[data-bs-theme="light"] .form-info {
+    background-color: #ecfeff;
+    border-color: rgba(6, 182, 212, 0.2);
+    color: var(--info-text);
+}
+
+[data-bs-theme="light"] .badge-custom {
+    backdrop-filter: none;
+}
+
+[data-bs-theme="light"] .badge-custom::before {
+    box-shadow: none;
+}
+
+[data-bs-theme="light"] .toast-notification {
+    box-shadow: var(--shadow-lg);
+}
+
+[data-bs-theme="light"] .topbar,
+[data-bs-theme="light"] .main-mobile-header {
+    background-color: #ffffff;
+    border-bottom-color: var(--border-color);
+}
+
+[data-bs-theme="light"] .form-card {
+    box-shadow: var(--shadow-lg);
+}
+
+[data-bs-theme="light"] .page-header__label {
+    color: var(--text-muted);
 }
