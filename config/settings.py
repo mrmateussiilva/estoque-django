@@ -5,11 +5,16 @@ from urllib.parse import urlparse
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "change-this-secret-key-in-production-with-at-least-50-characters")
-DEBUG = os.getenv("DJANGO_DEBUG", "False").lower() == "true"
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    "change-this-secret-key-in-production-with-at-least-50-characters",
+)
+DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,.vercel.app").split(",")
+    for host in os.getenv(
+        "DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,.vercel.app"
+    ).split(",")
     if host.strip()
 ]
 
@@ -20,6 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "core",
     "accounts",
     "dashboard",
     "inventory",
@@ -70,7 +76,9 @@ if os.getenv("DATABASE_URL"):
         "postgresql": "django.db.backends.postgresql",
     }
     DATABASES["default"] = {
-        "ENGINE": db_engine_map.get(parsed_db_url.scheme, "django.db.backends.postgresql"),
+        "ENGINE": db_engine_map.get(
+            parsed_db_url.scheme, "django.db.backends.postgresql"
+        ),
         "NAME": parsed_db_url.path.lstrip("/"),
         "USER": parsed_db_url.username,
         "PASSWORD": parsed_db_url.password,
@@ -118,7 +126,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-    SECURE_SSL_REDIRECT = True
+    SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 60 * 60 * 24 * 30
