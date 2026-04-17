@@ -2,6 +2,9 @@ import os
 from pathlib import Path
 from urllib.parse import urlparse
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -67,22 +70,53 @@ VERCEL = os.getenv("VERCEL", "false").lower() == "true"
 
 if os.getenv("DATABASE_URL"):
     parsed_db_url = urlparse(os.getenv("DATABASE_URL"))
-    db_engine_map = {
-        "postgres": "django.db.backends.postgresql",
-        "postgresql": "django.db.backends.postgresql",
-    }
+    if parsed_db_url.scheme == "mysql":
+        DATABASES = {
+            "default": {
+                "ENGINE": "django.db.backends.mysql",
+                "NAME": parsed_db_url.path.lstrip("/"),
+                "USER": parsed_db_url.username,
+                "PASSWORD": parsed_db_url.password,
+                "HOST": parsed_db_url.hostname,
+                "PORT": parsed_db_url.port or 3306,
+                "OPTIONS": {
+                    "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                    "charset": "utf8mb4",
+                },
+            }
+        }
+    else:
+        db_engine_map = {
+            "postgres": "django.db.backends.postgresql",
+            "postgresql": "django.db.backends.postgresql",
+        }
+        DATABASES = {
+            "default": {
+                "ENGINE": db_engine_map.get(
+                    parsed_db_url.scheme, "django.db.backends.postgresql"
+                ),
+                "NAME": parsed_db_url.path.lstrip("/"),
+                "USER": parsed_db_url.username,
+                "PASSWORD": parsed_db_url.password,
+                "HOST": parsed_db_url.hostname,
+                "PORT": parsed_db_url.port or "",
+                "CONN_MAX_AGE": 600,
+                "OPTIONS": {"sslmode": "require"} if not DEBUG else {},
+            }
+        }
+elif os.getenv("MYSQL_HOST"):
     DATABASES = {
         "default": {
-            "ENGINE": db_engine_map.get(
-                parsed_db_url.scheme, "django.db.backends.postgresql"
-            ),
-            "NAME": parsed_db_url.path.lstrip("/"),
-            "USER": parsed_db_url.username,
-            "PASSWORD": parsed_db_url.password,
-            "HOST": parsed_db_url.hostname,
-            "PORT": parsed_db_url.port or "",
-            "CONN_MAX_AGE": 600,
-            "OPTIONS": {"sslmode": "require"} if not DEBUG else {},
+            "ENGINE": "django.db.backends.mysql",
+            "NAME": os.getenv("MYSQL_NAME", "estoquefb"),
+            "USER": os.getenv("MYSQL_USER", "mateus1"),
+            "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
+            "HOST": os.getenv("MYSQL_HOST", "estoquefb.mysql.uhserver.com"),
+            "PORT": int(os.getenv("MYSQL_PORT", 3306)),
+            "OPTIONS": {
+                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+                "charset": "utf8mb4",
+            },
         }
     }
 elif VERCEL:
