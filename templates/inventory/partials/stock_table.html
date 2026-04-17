@@ -1,22 +1,42 @@
-<div class="card border-0 shadow-sm">
-    <div class="table-responsive">
-        <table class="table align-middle mb-0">
-            <thead class="table-light"><tr><th>Produto</th><th>SKU</th><th>Categoria</th><th>Saldo atual</th><th>Estoque minimo</th><th>Status</th></tr></thead>
-            <tbody>
-                {% for product in products %}
-                    <tr>
-                        <td class="fw-semibold">{{ product.name }}</td>
-                        <td>{{ product.sku }}</td>
-                        <td>{{ product.category.name }}</td>
-                        <td class="fw-bold">{{ product.current_stock }}</td>
-                        <td>{{ product.minimum_stock }}</td>
-                        <td>{% if product.current_stock <= product.minimum_stock %}<span class="badge text-bg-warning">Baixo</span>{% else %}<span class="badge text-bg-success">Normal</span>{% endif %}</td>
-                    </tr>
-                {% empty %}
-                    <tr><td colspan="6" class="text-center py-4 text-secondary">Nenhum produto encontrado.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<div class="table-container">
+    <table class="table-custom">
+        <thead>
+            <tr>
+                <th>Produto</th>
+                <th>SKU</th>
+                <th>Categoria</th>
+                <th>Saldo atual</th>
+                <th>Mínimo</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>
+                    <div class="fw-medium">{{ product.name }}</div>
+                    <small class="cell-muted">{{ product.get_unit_display }}</small>
+                </td>
+                <td class="cell-muted">{{ product.sku }}</td>
+                <td>{{ product.category.name }}</td>
+                <td class="cell-number">{{ product.current_stock }}</td>
+                <td class="cell-muted">{{ product.minimum_stock }}</td>
+                <td>
+                    {% if product.current_stock <= product.minimum_stock %}
+                    <span class="badge-custom badge-warning-custom">Baixo</span>
+                    {% else %}
+                    <span class="badge-custom badge-success-custom">Normal</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center py-4 text-muted-custom">
+                    Nenhum produto encontrado.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% include "components/pagination.html" %}
