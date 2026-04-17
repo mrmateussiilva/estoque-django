@@ -4,54 +4,70 @@
 {% block page_title %}Produto{% endblock %}
 
 {% block content %}
-<section class="row g-4">
-    <article class="col-xl-7">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between gap-3 flex-wrap">
+<div class="fb-section">
+    <section class="fb-grid fb-grid2">
+        <article class="fb-panel">
+            <div class="fb-panel-body">
+                <div class="fb-panel-header" style="border:none;padding:0;margin-bottom:var(--fb-spacing);">
                     <div>
-                        <small class="text-uppercase text-secondary">{{ product.category.name }}</small>
-                        <h3 class="h4 mb-1">{{ product.name }}</h3>
-                        <p class="text-secondary mb-0">SKU {{ product.sku }} • {{ product.get_unit_display }}</p>
+                        <small class="text-uppercase" style="color:var(--fb-text-secondary);font-size:var(--fb-fontSize-xs);">{{ product.category.name }}</small>
+                        <h3 class="fb-panel-title">{{ product.name }}</h3>
+                        <small class="text-secondary">SKU {{ product.sku }} &bull; {{ product.get_unit_display }}</small>
                     </div>
-                    <a href="{% url 'inventory:product-update' product.pk %}" class="btn btn-outline-secondary btn-sm">Editar</a>
+                    <a href="{% url 'inventory:product-update' product.pk %}" class="fb-btn fb-btnSecondary fb-btnSm">Editar</a>
                 </div>
 
-                <div class="row g-3 mt-3">
-                    <div class="col-sm-4"><div class="border rounded p-3"><small class="text-secondary">Saldo atual</small><div class="h4 mb-0">{{ product.current_stock }}</div></div></div>
-                    <div class="col-sm-4"><div class="border rounded p-3"><small class="text-secondary">Estoque minimo</small><div class="h4 mb-0">{{ product.minimum_stock }}</div></div></div>
-                    <div class="col-sm-4"><div class="border rounded p-3"><small class="text-secondary">Status</small><div class="fw-bold {% if product.current_stock <= product.minimum_stock %}text-warning{% else %}text-success{% endif %}">{% if product.current_stock <= product.minimum_stock %}Baixo{% else %}Normal{% endif %}</div></div></div>
+                <div class="fb-grid fb-grid3">
+                    <div class="fb-list-item border rounded p-3">
+                        <span class="fb-metric-label">Saldo atual</span>
+                        <span class="fb-metric-value">{{ product.current_stock }}</span>
+                    </div>
+                    <div class="fb-list-item border rounded p-3">
+                        <span class="fb-metric-label">Estoque minimo</span>
+                        <span class="fb-metric-value">{{ product.minimum_stock }}</span>
+                    </div>
+                    <div class="fb-list-item border rounded p-3">
+                        <span class="fb-metric-label">Status</span>
+                        <span class="fb-metric-value {% if product.current_stock <= product.minimum_stock %}fb-statusWarning{% else %}fb-statusNormal{% endif %}">
+                            {% if product.current_stock <= product.minimum_stock %}Baixo{% else %}Normal{% endif %}
+                        </span>
+                    </div>
                 </div>
 
                 <div class="d-flex gap-2 mt-4 flex-wrap">
-                    <a href="{% url 'inventory:movement-create' %}?type=in&product={{ product.pk }}" class="btn btn-success">Registrar entrada</a>
-                    <a href="{% url 'inventory:movement-create' %}?type=out&product={{ product.pk }}" class="btn btn-danger">Registrar saida</a>
+                    <a href="{% url 'inventory:movement-create' %}?type=in&product={{ product.pk }}" class="fb-btn fb-btnSuccess">Registrar entrada</a>
+                    <a href="{% url 'inventory:movement-create' %}?type=out&product={{ product.pk }}" class="fb-btn fb-btnDanger">Registrar saida</a>
                 </div>
             </div>
-        </div>
-    </article>
+        </article>
 
-    <article class="col-xl-5">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <h3 class="h5">Ultimas movimentacoes</h3>
-                <div class="vstack gap-2 mt-3">
+        <article class="fb-panel">
+            <div class="fb-panel-body">
+                <h3 class="fb-panel-title mb-3">Ultimas movimentacoes</h3>
+                <div class="fb-list">
                     {% for movement in recent_movements %}
-                        <div class="border rounded p-3">
-                            <div class="d-flex justify-content-between mb-2">
-                                {% if movement.movement_type == 'in' %}<span class="badge text-bg-success">{{ movement.get_movement_type_display }}</span>{% else %}<span class="badge text-bg-danger">{{ movement.get_movement_type_display }}</span>{% endif %}
-                                <small class="text-secondary">{{ movement.created_at|date:"d/m/Y H:i" }}</small>
+                        <div class="fb-list-item">
+                            <div class="fb-list-item-content">
+                                <span class="fb-list-item-title">
+                                    {% if movement.movement_type == 'in' %}
+                                        <span class="fb-badge fb-badgeSuccess">Entrada</span>
+                                    {% else %}
+                                        <span class="fb-badge fb-badgeDanger">Saida</span>
+                                    {% endif %}
+                                    &nbsp;{{ movement.quantity }} unidades
+                                </span>
+                                <span class="fb-list-item-meta">{{ movement.reason }}</span>
                             </div>
-                            <div class="fw-semibold">{{ movement.quantity }} unidades</div>
-                            <div class="text-secondary small">{{ movement.reason }}</div>
-                            {% if movement.notes %}<div class="small mt-1">{{ movement.notes }}</div>{% endif %}
+                            <div class="fb-list-item-end">
+                                <span class="text-secondary" style="font-size:var(--fb-fontSize-xs);">{{ movement.created_at|date:"d/m/Y H:i" }}</span>
+                            </div>
                         </div>
                     {% empty %}
-                        <div class="text-center py-4 text-secondary">Sem movimentacoes para este produto.</div>
+                        <div class="fb-empty">Sem movimentacoes para este produto.</div>
                     {% endfor %}
                 </div>
             </div>
-        </div>
-    </article>
-</section>
+        </article>
+    </section>
+</div>
 {% endblock %}

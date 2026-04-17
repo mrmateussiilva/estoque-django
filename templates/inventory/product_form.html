@@ -1,34 +1,87 @@
 {% extends "base.html" %}
 
-{% block title %}{% if object %}Editar produto{% else %}Novo produto{% endif %} | FinderBit Estoque{% endblock %}
-{% block page_title %}{% if object %}Editar produto{% else %}Novo produto{% endif %}{% endblock %}
+{% block title %}{% if object %}Editar{% else %}Novo{% endif %} Produto | FinderBit Estoque{% endblock %}
+{% block page_title %}{% if object %}Editar{% else %}Novo{% endif %} Produto{% endblock %}
 
 {% block content %}
-<section class="card shadow-sm border-0" style="max-width: 960px;">
-    <div class="card-body">
-        <h3 class="h5 mb-3">{% if object %}Atualize os dados do produto{% else %}Cadastre um novo produto{% endif %}</h3>
-        <form method="post" class="row g-3">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="{% if field.name == 'active' %}col-12{% else %}col-md-6{% endif %}">
-                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                    {% if field.name == 'active' %}
-                        <div class="form-check border rounded p-3">
-                            {{ field }}
-                            <label class="form-check-label" for="{{ field.id_for_label }}">Produto disponivel para movimentacao</label>
-                        </div>
-                    {% else %}
-                        {{ field }}
-                    {% endif %}
-                    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-                    {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-                </div>
-            {% endfor %}
-            <div class="col-12 d-flex justify-content-end gap-2 mt-2">
-                <a href="{% url 'inventory:product-list' %}" class="btn btn-outline-secondary">Cancelar</a>
-                <button class="btn btn-primary">Salvar produto</button>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card-dark">
+            <div class="card-header">
+                <h5 class="mb-0">{% if object %}Editar{% else %}Cadastrar{% endif %} Produto</h5>
+                <small class="text-muted">Preencha os dados do produto</small>
             </div>
-        </form>
+            <div class="card-body">
+                <form method="post" class="row g-3">
+                    {% csrf_token %}
+                    
+                    <!-- Nome -->
+                    <div class="col-12">
+                        <label for="{{ form.name.id_for_label }}" class="form-label-dark">{{ form.name.label }}</label>
+                        {{ form.name }}
+                        {% if form.name.help_text %}<small class="d-block text-muted mt-1">{{ form.name.help_text }}</small>{% endif %}
+                        {% for error in form.name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- SKU -->
+                    <div class="col-md-6">
+                        <label for="{{ form.sku.id_for_label }}" class="form-label-dark">{{ form.sku.label }}</label>
+                        {{ form.sku }}
+                        {% if form.sku.help_text %}<small class="d-block text-muted mt-1">{{ form.sku.help_text }}</small>{% endif %}
+                        {% for error in form.sku.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- Categoria -->
+                    <div class="col-md-6">
+                        <label for="{{ form.category.id_for_label }}" class="form-label-dark">{{ form.category.label }}</label>
+                        {{ form.category }}
+                        {% for error in form.category.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <!-- Nova Categoria -->
+                    <div class="col-12">
+                        <label for="{{ form.new_category.id_for_label }}" class="form-label-dark">{{ form.new_category.label }}</label>
+                        {{ form.new_category }}
+                        <small class="text-muted">Ou selecione uma acima</small>
+                    </div>
+
+                    <!-- Unidade e Estoque Mínimo -->
+                    <div class="col-md-6">
+                        <label for="{{ form.unit.id_for_label }}" class="form-label-dark">{{ form.unit.label }}</label>
+                        {{ form.unit }}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="{{ form.minimum_stock.id_for_label }}" class="form-label-dark">{{ form.minimum_stock.label }}</label>
+                        {{ form.minimum_stock }}
+                        {% if form.minimum_stock.help_text %}<small class="d-block text-muted mt-1">{{ form.minimum_stock.help_text }}</small>{% endif %}
+                    </div>
+
+                    <!-- Ativo -->
+                    <div class="col-12">
+                        <div class="form-check form-check-custom">
+                            {{ form.active }}
+                            <label class="form-check-label" for="{{ form.active.id_for_label }}">
+                                {{ form.active.label }}
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- botões de Ação -->
+                    <div class="col-12">
+                        <hr style="border-color: var(--border-color);">
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="{% url 'inventory:product-list' %}" class="btn btn-link text-muted text-decoration-none">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-brand">
+                                Salvar Produto
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-</section>
+</div>
 {% endblock %}
