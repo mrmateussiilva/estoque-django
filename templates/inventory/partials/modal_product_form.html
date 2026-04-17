@@ -1,0 +1,81 @@
+{% load string_filters %}
+
+<div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">
+                <i class="bi bi-box-seam"></i>
+                {% if object %}Editar{% else %}Novo{% endif %} Produto
+            </h5>
+            <button type="button" class="modal-close" data-bs-dismiss="modal" aria-label="Fechar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="productForm" hx-post="{% url 'inventory:product-create' %}" 
+                  hx-target="#products-table"
+                  hx-swap="innerHTML"
+                  hx-trigger="submit"
+                  hx-on::after-request="if(event.detail.successful) { this.reset(); bootstrap.Modal.getInstance(document.getElementById('modalProduct')).hide(); }">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}" class="form-label-custom">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {% if form.name.help_text %}<small class="form-hint">{{ form.name.help_text }}</small>{% endif %}
+                    {% for error in form.name.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.sku.id_for_label }}" class="form-label-custom">{{ form.sku.label }}</label>
+                        {{ form.sku }}
+                        {% if form.sku.help_text %}<small class="form-hint">{{ form.sku.help_text }}</small>{% endif %}
+                        {% for error in form.sku.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.category.id_for_label }}" class="form-label-custom">{{ form.category.label }}</label>
+                        {{ form.category }}
+                        {% for error in form.category.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.new_category.id_for_label }}" class="form-label-custom">{{ form.new_category.label }}</label>
+                    {{ form.new_category }}
+                    <small class="form-hint">Ou selecione uma categoria acima</small>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.unit.id_for_label }}" class="form-label-custom">{{ form.unit.label }}</label>
+                        {{ form.unit }}
+                        {% for error in form.unit.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.minimum_stock.id_for_label }}" class="form-label-custom">{{ form.minimum_stock.label }}</label>
+                        {{ form.minimum_stock }}
+                        {% if form.minimum_stock.help_text %}<small class="form-hint">{{ form.minimum_stock.help_text }}</small>{% endif %}
+                        {% for error in form.minimum_stock.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-check form-check-custom">
+                        {{ form.active }}
+                        <label class="form-check-label" for="{{ form.active.id_for_label }}">
+                            {{ form.active.label }}
+                        </label>
+                    </div>
+                </div>
+                {% if form.non_field_errors %}
+                <div class="form-alert form-alert--danger">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" form="productForm" class="btn-modal-submit">
+                <i class="bi bi-check-lg"></i>
+                Salvar
+            </button>
+        </div>
+    </div>
+</div>

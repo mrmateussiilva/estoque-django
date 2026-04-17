@@ -42,10 +42,18 @@
             <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
             <div class="pagination-custom__actions">
                 {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline-secondary btn-sm">Anterior</a>
+                <a hx-get="{% url 'inventory:movement-list' %}?{% querystring page=page_obj.previous_page_number %}"
+                   hx-target="#movements-table"
+                   hx-swap="innerHTML"
+                   hx-indicator=".htmx-indicator"
+                   class="btn btn-outline-secondary btn-sm">Anterior</a>
                 {% endif %}
                 {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline-secondary btn-sm">Próxima</a>
+                <a hx-get="{% url 'inventory:movement-list' %}?{% querystring page=page_obj.next_page_number %}"
+                   hx-target="#movements-table"
+                   hx-swap="innerHTML"
+                   hx-indicator=".htmx-indicator"
+                   class="btn btn-outline-secondary btn-sm">Próxima</a>
                 {% endif %}
             </div>
         </div>

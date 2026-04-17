@@ -11,10 +11,10 @@ def make_list(value):
     return list(str(value))
 
 
-@register.simple_tag
-def querystring(params, **kwargs):
-    """Adiciona ou substitui parâmetros na query string."""
-    query = dict(params)
+@register.simple_tag(takes_context=True)
+def querystring(context, **kwargs):
+    """Adiciona ou substitui parâmetros na query string atual."""
+    query = dict(context.request.GET)
     query.update(kwargs)
     query = {k: v for k, v in query.items() if v}
     return urlencode(query)
