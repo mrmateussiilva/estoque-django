@@ -1627,6 +1627,78 @@ body.sidebar-collapsed .main-wrapper {
 }
 
 /* ========================================
+   HTMX LOADING INDICATOR
+   ======================================== */
+
+.htmx-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand), var(--brand-hover), var(--brand));
+    background-size: 200% 100%;
+    animation: htmx-loading 1.5s linear infinite;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.htmx-request .htmx-indicator,
+.htmx-indicator.htmx-loading {
+    opacity: 1;
+}
+
+@keyframes htmx-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.htmx-spinner {
+    display: none;
+}
+
+/* ========================================
+   HTMX TABLE SWAPS
+   ======================================== */
+
+.htmx-table {
+    transition: opacity 0.15s ease;
+}
+
+.htmx-table.htmx-swapping {
+    opacity: 0.5;
+}
+
+.htmx-table.htmx-settling {
+    opacity: 1;
+}
+
+/* ========================================
+   HTMX MESSAGE ALERTS
+   ======================================== */
+
+.htmx-alert {
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* OOB swap styles */
+.htmx-oob {
+    display: none;
+}
+
+/* ========================================
    LIGHT MODE - OVERRIDES ESPECÍFICOS
    ======================================== */
 

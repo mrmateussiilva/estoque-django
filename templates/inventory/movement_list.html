@@ -23,84 +23,66 @@
 <!-- Filtros -->
 <div class="filter-bar mb-4">
     <p class="filter-bar__title">Filtrar movimentações</p>
-    <form method="get" class="row g-3">
-        <div class="col-md-4 col-lg-3">
-            <label class="form-label-custom">Produto</label>
-            <select name="product" class="form-select-custom">
-                <option value="">Todos</option>
-                {% for product in products %}
-                <option value="{{ product.pk }}">{{ product.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-4 col-lg-2">
-            <label class="form-label-custom">Tipo</label>
-            <select name="type" class="form-select-custom">
-                <option value="">Todos</option>
-                <option value="in">Entrada</option>
-                <option value="out">Saída</option>
-            </select>
-        </div>
-        <div class="col-md-4 col-lg-2">
-            <label class="form-label-custom">Data Inicial</label>
-            <input type="date" name="start_date" class="form-control-custom">
-        </div>
-        <div class="col-md-4 col-lg-2">
-            <label class="form-label-custom">Data Final</label>
-            <input type="date" name="end_date" class="form-control-custom">
-        </div>
-        <div class="col-12 col-lg-3">
-            <label class="form-label-custom">&nbsp;</label>
-            <div class="filter-bar__actions">
-                <button type="submit" class="btn filter-bar__btn filter-bar__btn--submit">
-                    Filtrar
-                </button>
-                <a href="{% url 'inventory:movement-list' %}" class="btn filter-bar__btn filter-bar__btn--clear">
-                    Limpar
-                </a>
+    <form id="movementFilterForm" hx-get="{% url 'inventory:movement-list' %}" 
+          hx-trigger="keyup changed delay:500ms from:#id_product, change from:#id_type, change from:#id_start_date, change from:#id_end_date"
+          hx-target="#movements-table"
+          hx-swap="innerHTML"
+          hx-indicator=".htmx-indicator">
+        <div class="row g-3">
+            <div class="col-md-4 col-lg-3">
+                <label for="id_product" class="form-label-custom">Produto</label>
+                <select id="id_product" name="product" class="form-select-custom">
+                    <option value="">Todos</option>
+                    {% for product in products %}
+                    <option value="{{ product.pk }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <label for="id_type" class="form-label-custom">Tipo</label>
+                <select id="id_type" name="type" class="form-select-custom">
+                    <option value="">Todos</option>
+                    <option value="in">Entrada</option>
+                    <option value="out">Saída</option>
+                </select>
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <label for="id_start_date" class="form-label-custom">Data Inicial</label>
+                <input type="date" id="id_start_date" name="start_date" class="form-control-custom">
+            </div>
+            <div class="col-md-4 col-lg-2">
+                <label for="id_end_date" class="form-label-custom">Data Final</label>
+                <input type="date" id="id_end_date" name="end_date" class="form-control-custom">
+            </div>
+            <div class="col-12 col-lg-3">
+                <label class="form-label-custom">&nbsp;</label>
+                <div class="filter-bar__actions">
+                    <button type="button" class="btn filter-bar__btn filter-bar__btn--clear" onclick="document.getElementById('movementFilterForm').reset(); document.getElementById('movementFilterForm').dispatchEvent(new Event('change'));">
+                        Limpar
+                    </button>
+                </div>
             </div>
         </div>
     </form>
 </div>
 
 <!-- Tabela -->
-<div class="table-container">
-    <table class="table-custom">
-        <thead>
-            <tr>
-                <th>Data</th>
-                <th>Produto</th>
-                <th>Tipo</th>
-                <th>Quantidade</th>
-                <th>Motivo</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for movement in movements %}
-            <tr>
-                <td class="cell-muted">{{ movement.created_at|date:"d/m/Y H:i" }}</td>
-                <td>
-                    <div class="fw-medium">{{ movement.product.name }}</div>
-                    <small class="cell-muted">{{ movement.product.sku }}</small>
-                </td>
-                <td>
-                    {% if movement.movement_type == 'in' %}
-                    <span class="badge-custom badge-entry-custom">Entrada</span>
-                    {% else %}
-                    <span class="badge-custom badge-exit-custom">Saída</span>
-                    {% endif %}
-                </td>
-                <td class="cell-number">{{ movement.quantity }}</td>
-                <td>{{ movement.reason }}</td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="text-center py-4 text-muted-custom">
-                    Nenhuma movimentação encontrada.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div id="movements-table-wrapper">
+    {% include "inventory/partials/movements_table.html" %}
+</div>
+
+<!-- Modal de Movimentação -->
+<div class="modal" id="modalMovement" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" id="modalMovementContent">
+            <div hx-get="{% url 'inventory:movement-create' %}" hx-trigger="revealed" hx-swap="innerHTML">
+                <div class="d-flex justify-content-center p-4">
+                    <div class="spinner-border text-brand" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

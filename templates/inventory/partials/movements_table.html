@@ -1,38 +1,36 @@
-<div id="stock-table" class="table-container htmx-table">
+<div id="movements-table" class="table-container htmx-table">
     <table class="table-custom">
         <thead>
             <tr>
+                <th>Data</th>
                 <th>Produto</th>
-                <th>SKU</th>
-                <th>Categoria</th>
-                <th>Saldo atual</th>
-                <th>Mínimo</th>
-                <th>Status</th>
+                <th>Tipo</th>
+                <th>Quantidade</th>
+                <th>Motivo</th>
             </tr>
         </thead>
         <tbody>
-            {% for product in products %}
+            {% for movement in movements %}
             <tr>
+                <td class="cell-muted">{{ movement.created_at|date:"d/m/Y H:i" }}</td>
                 <td>
-                    <div class="fw-medium">{{ product.name }}</div>
-                    <small class="cell-muted">{{ product.get_unit_display }}</small>
+                    <div class="fw-medium">{{ movement.product.name }}</div>
+                    <small class="cell-muted">{{ movement.product.sku }}</small>
                 </td>
-                <td class="cell-muted">{{ product.sku }}</td>
-                <td>{{ product.category.name }}</td>
-                <td class="cell-number">{{ product.current_stock }}</td>
-                <td class="cell-muted">{{ product.minimum_stock }}</td>
                 <td>
-                    {% if product.current_stock <= product.minimum_stock %}
-                    <span class="badge-custom badge-warning-custom">Baixo</span>
+                    {% if movement.movement_type == 'in' %}
+                    <span class="badge-custom badge-entry-custom">Entrada</span>
                     {% else %}
-                    <span class="badge-custom badge-success-custom">Normal</span>
+                    <span class="badge-custom badge-exit-custom">Saída</span>
                     {% endif %}
                 </td>
+                <td class="cell-number">{{ movement.quantity }}</td>
+                <td>{{ movement.reason }}</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="text-center py-4 text-muted-custom">
-                    Nenhum produto encontrado.
+                <td colspan="5" class="text-center py-4 text-muted-custom">
+                    Nenhuma movimentação encontrada.
                 </td>
             </tr>
             {% endfor %}

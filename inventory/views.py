@@ -1,12 +1,10 @@
 import csv
-import json
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models
 from django.db.models import Q
-from django.http import Http404, HttpResponse, JsonResponse
-from django.template.loader import render_to_string
+from django.http import Http404, HttpResponse
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
@@ -22,16 +20,17 @@ class CompanyScopedMixin(LoginRequiredMixin):
             raise Http404("Usuario sem empresa vinculada.")
         return super().dispatch(request, *args, **kwargs)
 
+    def is_htmx(self):
+        return self.request.headers.get("HX-Request") == "true"
 
-class FormModalMixin:
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return context
-        context["movement_form"] = StockMovementForm(company=self.request.company)
-        context["product_form"] = ProductForm(company=self.request.company)
-        context["product_form_action"] = reverse_lazy("inventory:product-create")
-        return context
+
+class HTMXListMixin:
+    partial_template_name = None
+
+    def get_template_names(self):
+        if self.is_htmx():
+            return [self.partial_template_name]
+        return [self.template_name]
 
 
 class ProductQueryMixin(CompanyScopedMixin):
@@ -50,9 +49,10 @@ class MovementQueryMixin(CompanyScopedMixin):
         )
 
 
-class ProductListView(FormModalMixin, ProductQueryMixin, ListView):
+class ProductListView(HTMXListMixin, ProductQueryMixin, ListView):
     model = Product
     template_name = "inventory/product_list.html"
+    partial_template_name = "inventory/partials/products_table.html"
     context_object_name = "products"
     paginate_by = 20
 
@@ -62,7 +62,6 @@ class ProductListView(FormModalMixin, ProductQueryMixin, ListView):
         category_id = self.request.GET.get("category")
         active = self.request.GET.get("active")
         stock_status = self.request.GET.get("stock_status")
-        ordering = self.request.GET.get("ordering", "name")
 
         if search:
             queryset = queryset.filter(
@@ -79,15 +78,7 @@ class ProductListView(FormModalMixin, ProductQueryMixin, ListView):
         elif stock_status == "normal":
             queryset = queryset.filter(current_stock__gt=models.F("minimum_stock"))
 
-        ordering_map = {
-            "name": "name",
-            "sku": "sku",
-            "category": "category__name",
-            "stock_desc": "-current_stock",
-            "stock_asc": "current_stock",
-            "recent": "-created_at",
-        }
-        return queryset.order_by(ordering_map.get(ordering, "name"))
+        return queryset.order_by("name")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -97,7 +88,6 @@ class ProductListView(FormModalMixin, ProductQueryMixin, ListView):
             "category": self.request.GET.get("category", ""),
             "active": self.request.GET.get("active", ""),
             "stock_status": self.request.GET.get("stock_status", ""),
-            "ordering": self.request.GET.get("ordering", "name"),
         }
         return context
 
@@ -118,7 +108,8 @@ class ProductDetailView(ProductQueryMixin, DetailView):
 class ProductCreateView(CompanyScopedMixin, CreateView):
     model = Product
     form_class = ProductForm
-    template_name = "inventory/product_form.html"
+    template_name = "inventory/partials/modal_product_form.html"
+    partial_template_name = "inventory/partials/modal_product_form.html"
     success_url = reverse_lazy("inventory:product-list")
 
     def get_form_kwargs(self):
@@ -126,29 +117,15 @@ class ProductCreateView(CompanyScopedMixin, CreateView):
         kwargs["company"] = self.request.company
         return kwargs
 
+    def get_template_names(self):
+        if self.is_htmx():
+            return [self.partial_template_name]
+        return [self.template_name]
+
     def form_valid(self, form):
         form.instance.company = self.request.company
         messages.success(self.request, "Produto criado com sucesso.")
-
-        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return JsonResponse(
-                {"success": True, "redirect_url": str(self.success_url)}
-            )
-
         return super().form_valid(form)
-
-    def form_invalid(self, form):
-        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            html_form = render_to_string(
-                "inventory/modal_product.html",
-                {
-                    "product_form": form,
-                    "product_form_action": reverse_lazy("inventory:product-create"),
-                },
-                request=self.request,
-            )
-            return JsonResponse({"success": False, "html_form": html_form})
-        return super().form_invalid(form)
 
 
 class ProductUpdateView(ProductQueryMixin, UpdateView):
@@ -169,13 +146,19 @@ class ProductUpdateView(ProductQueryMixin, UpdateView):
 class MovementCreateView(CompanyScopedMixin, CreateView):
     model = StockMovement
     form_class = StockMovementForm
-    template_name = "inventory/movement_form.html"
+    template_name = "inventory/partials/modal_movement_form.html"
+    partial_template_name = "inventory/partials/modal_movement_form.html"
     success_url = reverse_lazy("inventory:movement-list")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["company"] = self.request.company
         return kwargs
+
+    def get_template_names(self):
+        if self.is_htmx():
+            return [self.partial_template_name]
+        return [self.template_name]
 
     def get_initial(self):
         initial = super().get_initial()
@@ -191,28 +174,13 @@ class MovementCreateView(CompanyScopedMixin, CreateView):
         form.instance.company = self.request.company
         form.instance.created_by = self.request.user
         messages.success(self.request, "Movimentacao registrada com sucesso.")
-
-        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return JsonResponse(
-                {"success": True, "redirect_url": str(self.success_url)}
-            )
-
         return super().form_valid(form)
 
-    def form_invalid(self, form):
-        if self.request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            html_form = render_to_string(
-                "inventory/modal_movement.html",
-                {"movement_form": form},
-                request=self.request,
-            )
-            return JsonResponse({"success": False, "html_form": html_form})
-        return super().form_invalid(form)
 
-
-class MovementListView(FormModalMixin, MovementQueryMixin, ListView):
+class MovementListView(HTMXListMixin, MovementQueryMixin, ListView):
     model = StockMovement
     template_name = "inventory/movement_list.html"
+    partial_template_name = "inventory/partials/movements_table.html"
     context_object_name = "movements"
     paginate_by = 20
 
@@ -222,7 +190,6 @@ class MovementListView(FormModalMixin, MovementQueryMixin, ListView):
         movement_type = self.request.GET.get("type")
         start_date = self.request.GET.get("start_date")
         end_date = self.request.GET.get("end_date")
-        ordering = self.request.GET.get("ordering", "date_desc")
 
         if product_id:
             queryset = queryset.filter(product_id=product_id)
@@ -232,14 +199,8 @@ class MovementListView(FormModalMixin, MovementQueryMixin, ListView):
             queryset = queryset.filter(created_at__date__gte=start_date)
         if end_date:
             queryset = queryset.filter(created_at__date__lte=end_date)
-        ordering_map = {
-            "date_desc": "-created_at",
-            "date_asc": "created_at",
-            "product": "product__name",
-            "quantity_desc": "-quantity",
-            "quantity_asc": "quantity",
-        }
-        return queryset.order_by(ordering_map.get(ordering, "-created_at"), "-id")
+
+        return queryset.order_by("-created_at", "-id")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -248,20 +209,19 @@ class MovementListView(FormModalMixin, MovementQueryMixin, ListView):
             .select_related("category")
             .order_by("name")
         )
-        context["movement_types"] = StockMovement.TYPE_CHOICES
         context["filters"] = {
             "product": self.request.GET.get("product", ""),
             "type": self.request.GET.get("type", ""),
             "start_date": self.request.GET.get("start_date", ""),
             "end_date": self.request.GET.get("end_date", ""),
-            "ordering": self.request.GET.get("ordering", "date_desc"),
         }
         return context
 
 
-class StockListView(FormModalMixin, CompanyScopedMixin, ListView):
+class StockListView(HTMXListMixin, CompanyScopedMixin, ListView):
     model = Product
     template_name = "inventory/stock_list.html"
+    partial_template_name = "inventory/partials/stock_table.html"
     context_object_name = "products"
     paginate_by = 20
 
@@ -275,6 +235,7 @@ class StockListView(FormModalMixin, CompanyScopedMixin, ListView):
         category_id = self.request.GET.get("category")
         stock_status = self.request.GET.get("stock_status")
         ordering = self.request.GET.get("ordering", "name")
+
         if search:
             queryset = queryset.filter(
                 Q(name__icontains=search)
@@ -291,16 +252,10 @@ class StockListView(FormModalMixin, CompanyScopedMixin, ListView):
         ordering_map = {
             "name": "name",
             "sku": "sku",
-            "category": "category__name",
             "stock_desc": "-current_stock",
             "stock_asc": "current_stock",
         }
         return queryset.order_by(ordering_map.get(ordering, "name"))
-
-    def get_template_names(self):
-        if self.request.headers.get("HX-Request") == "true":
-            return ["inventory/partials/stock_table.html"]
-        return [self.template_name]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -2,7 +2,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models
 from django.db.models import F, Sum, Value
 from django.db.models.functions import Coalesce, TruncDate
-from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import TemplateView
 

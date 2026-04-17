@@ -1,12 +1,11 @@
-<div id="stock-table" class="table-container htmx-table">
+<div id="products-table" class="table-container htmx-table">
     <table class="table-custom">
         <thead>
             <tr>
-                <th>Produto</th>
+                <th>Nome</th>
                 <th>SKU</th>
                 <th>Categoria</th>
-                <th>Saldo atual</th>
-                <th>Mínimo</th>
+                <th>Saldo</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -20,7 +19,6 @@
                 <td class="cell-muted">{{ product.sku }}</td>
                 <td>{{ product.category.name }}</td>
                 <td class="cell-number">{{ product.current_stock }}</td>
-                <td class="cell-muted">{{ product.minimum_stock }}</td>
                 <td>
                     {% if product.current_stock <= product.minimum_stock %}
                     <span class="badge-custom badge-warning-custom">Baixo</span>
@@ -31,8 +29,8 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="text-center py-4 text-muted-custom">
-                    Nenhum produto encontrado.
+                <td colspan="5" class="text-center py-4 text-muted-custom">
+                    Nenhum produto cadastrado.
                 </td>
             </tr>
             {% endfor %}
