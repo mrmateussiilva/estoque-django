@@ -35,15 +35,19 @@
                         {% for error in movement_form.movement_type.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
                     </div>
                     <div class="form-group">
-                        <label for="{{ movement_form.quantity.id_for_label }}" class="form-label-custom">{{ movement_form.quantity.label }}</label>
+                        <label for="{{ movement_form.quantity.id_for_label }}" class="form-label-custom">
+                            {{ movement_form.quantity.label }}
+                            <span id="quantity-unit-hint" class="form-hint-unit" style="display: none;"></span>
+                        </label>
                         {{ movement_form.quantity }}
+                        <small class="form-hint">Use ponto ou vírgula para decimais (ex: 1.5 ou 1,5)</small>
                         {% for error in movement_form.quantity.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="{{ movement_form.created_at.id_for_label }}" class="form-label-custom">{{ movement_form.created_at.label }}</label>
                     {{ movement_form.created_at }}
-                    {% for error in movement_form.created_at.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
+                    {% for error in movement_form.created_at.errors %}<div class="form-error">{{ error }}</% endfor %}
                 </div>
                 <div class="form-group">
                     <label for="{{ movement_form.reason.id_for_label }}" class="form-label-custom">{{ movement_form.reason.label }}</label>
@@ -71,3 +75,31 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const productSelect = document.getElementById('{{ movement_form.product.id_for_label }}');
+    const quantityHint = document.getElementById('quantity-unit-hint');
+    
+    const unitMap = {
+        'un': 'UN', 'mt': 'MT', 'lt': 'LT', 'kg': 'KG', 'fl': 'FL', 'pc': 'PC'
+    };
+    
+    function updateUnitHint() {
+        const option = productSelect.options[productSelect.selectedIndex];
+        if (option && option.value) {
+            const text = option.text;
+            const match = text.match(/\(([^)]+)\)/);
+            if (match) {
+                quantityHint.textContent = '(em ' + match[1] + ')';
+                quantityHint.style.display = 'inline';
+            }
+        } else {
+            quantityHint.style.display = 'none';
+        }
+    }
+    
+    productSelect.addEventListener('change', updateUnitHint);
+    updateUnitHint();
+});
+</script>

@@ -24,7 +24,10 @@
                     <span class="badge-custom badge-exit-custom">Saída</span>
                     {% endif %}
                 </td>
-                <td class="cell-number">{{ movement.quantity }}</td>
+                <td class="cell-number">
+                    <span class="stock-value">{{ movement.quantity|stringformat:"g" }}</span>
+                    <span class="stock-unit">{{ movement.product.unit_suffix }}</span>
+                </td>
                 <td>{{ movement.reason }}</td>
             </tr>
             {% empty %}

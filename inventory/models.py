@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Case, F, IntegerField, OuterRef, Subquery, Sum, Value, When
+from django.db.models import Case, DecimalField, F, OuterRef, Subquery, Sum, Value, When
 from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils import timezone
@@ -12,7 +12,7 @@ def signed_quantity_expression():
     return Case(
         When(movement_type=StockMovement.TYPE_IN, then=F("quantity")),
         default=F("quantity") * Value(-1),
-        output_field=IntegerField(),
+        output_field=DecimalField(max_digits=12, decimal_places=3),
     )
 
 
@@ -33,7 +33,10 @@ class ProductQuerySet(CompanyQuerySet):
         )
         return self.annotate(
             current_stock=Coalesce(
-                Subquery(movement_totals, output_field=IntegerField()),
+                Subquery(
+                    movement_totals,
+                    output_field=DecimalField(max_digits=12, decimal_places=3),
+                ),
                 Value(0),
             )
         )
@@ -48,7 +51,9 @@ class ProductQuerySet(CompanyQuerySet):
 
 
 class Category(models.Model):
-    company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="categories")
+    company = models.ForeignKey(
+        Company, on_delete=models.PROTECT, related_name="categories"
+    )
     name = models.CharField("nome", max_length=80)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -59,7 +64,9 @@ class Category(models.Model):
         verbose_name_plural = "categorias"
         ordering = ["name"]
         constraints = [
-            models.UniqueConstraint(fields=["company", "name"], name="unique_company_category_name"),
+            models.UniqueConstraint(
+                fields=["company", "name"], name="unique_company_category_name"
+            ),
         ]
 
     def __str__(self) -> str:
@@ -68,18 +75,33 @@ class Category(models.Model):
 
 class Product(models.Model):
     UNIT_UN = "un"
-    UNIT_KG = "kg"
+    UNIT_MT = "mt"
     UNIT_LT = "lt"
-    UNIT_M = "m"
+    UNIT_KG = "kg"
+    UNIT_FL = "fl"
+    UNIT_PC = "pc"
 
     UNIT_CHOICES = [
-        (UNIT_UN, "Unidade"),
-        (UNIT_KG, "Quilo"),
-        (UNIT_LT, "Litro"),
-        (UNIT_M, "Metro"),
+        (UNIT_UN, "Unidade (UN)"),
+        (UNIT_MT, "Metros (MT)"),
+        (UNIT_LT, "Litros (LT)"),
+        (UNIT_KG, "Quilos (KG)"),
+        (UNIT_FL, "Folhas (FL)"),
+        (UNIT_PC, "Peças (PC)"),
     ]
 
-    company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="products")
+    UNIT_SUFFIX_MAP = {
+        UNIT_UN: "UN",
+        UNIT_MT: "MT",
+        UNIT_LT: "LT",
+        UNIT_KG: "KG",
+        UNIT_FL: "FL",
+        UNIT_PC: "PC",
+    }
+
+    company = models.ForeignKey(
+        Company, on_delete=models.PROTECT, related_name="products"
+    )
     name = models.CharField("nome", max_length=150)
     sku = models.CharField(max_length=60)
     category = models.ForeignKey(
@@ -88,8 +110,12 @@ class Product(models.Model):
         related_name="products",
         verbose_name="categoria",
     )
-    unit = models.CharField("unidade", max_length=2, choices=UNIT_CHOICES, default=UNIT_UN)
-    minimum_stock = models.PositiveIntegerField("estoque minimo", default=0)
+    unit = models.CharField(
+        "unidade", max_length=2, choices=UNIT_CHOICES, default=UNIT_UN
+    )
+    minimum_stock = models.DecimalField(
+        "estoque minimo", max_digits=12, decimal_places=3, default=0
+    )
     active = models.BooleanField("ativo", default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -101,15 +127,23 @@ class Product(models.Model):
         verbose_name_plural = "produtos"
         ordering = ["name"]
         constraints = [
-            models.UniqueConstraint(fields=["company", "sku"], name="unique_company_sku"),
+            models.UniqueConstraint(
+                fields=["company", "sku"], name="unique_company_sku"
+            ),
         ]
 
     def __str__(self) -> str:
         return self.name
 
     @property
-    def stock_balance(self) -> int:
-        total = self.movements.aggregate(total=Coalesce(Sum(signed_quantity_expression()), Value(0)))["total"]
+    def unit_suffix(self) -> str:
+        return self.UNIT_SUFFIX_MAP.get(self.unit, "UN")
+
+    @property
+    def stock_balance(self):
+        total = self.movements.aggregate(
+            total=Coalesce(Sum(signed_quantity_expression()), Value(0))
+        )["total"]
         return total or 0
 
     @property
@@ -124,7 +158,9 @@ class StockMovementQuerySet(CompanyQuerySet):
     def for_company(self, company):
         if company is None:
             return self.none()
-        return self.filter(company=company).select_related("product", "company", "created_by")
+        return self.filter(company=company).select_related(
+            "product", "company", "created_by"
+        )
 
 
 class StockMovement(models.Model):
@@ -135,10 +171,14 @@ class StockMovement(models.Model):
         (TYPE_OUT, "Saida"),
     ]
 
-    company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="movements")
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="movements")
+    company = models.ForeignKey(
+        Company, on_delete=models.PROTECT, related_name="movements"
+    )
+    product = models.ForeignKey(
+        Product, on_delete=models.PROTECT, related_name="movements"
+    )
     movement_type = models.CharField("tipo", max_length=3, choices=TYPE_CHOICES)
-    quantity = models.PositiveIntegerField("quantidade")
+    quantity = models.DecimalField("quantidade", max_digits=12, decimal_places=3)
     reason = models.CharField("motivo", max_length=120)
     notes = models.TextField("observacao", blank=True)
     created_at = models.DateTimeField("data/hora", default=timezone.now)
@@ -159,14 +199,20 @@ class StockMovement(models.Model):
         return f"{self.get_movement_type_display()} - {self.product.name}"
 
     @property
-    def signed_quantity(self) -> int:
+    def signed_quantity(self):
         return self.quantity if self.movement_type == self.TYPE_IN else -self.quantity
 
     def clean(self):
         errors = {}
 
-        if self.company_id and self.product_id and self.product.company_id != self.company_id:
-            errors["product"] = "O produto precisa pertencer a mesma empresa da movimentacao."
+        if (
+            self.company_id
+            and self.product_id
+            and self.product.company_id != self.company_id
+        ):
+            errors["product"] = (
+                "O produto precisa pertencer a mesma empresa da movimentacao."
+            )
 
         if self.quantity <= 0:
             errors["quantity"] = "Informe uma quantidade maior que zero."

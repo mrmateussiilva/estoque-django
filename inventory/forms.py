@@ -21,16 +21,18 @@ class ProductForm(forms.ModelForm):
         ).order_by("name")
         self.fields["category"].required = False
 
-        # Aplicar classes dark mode
         for name, field in self.fields.items():
             if name == "active":
                 field.widget.attrs["class"] = "form-check-input form-check-custom"
             elif name == "new_category":
-                pass  # Já configurado acima
+                pass
             elif isinstance(field.widget, forms.Select):
                 field.widget.attrs["class"] = "form-dark form-select"
             else:
                 field.widget.attrs["class"] = "form-dark"
+
+        self.fields["minimum_stock"].widget.attrs["min"] = "0"
+        self.fields["minimum_stock"].widget.attrs["step"] = "0.01"
 
     def clean(self):
         cleaned_data = super().clean()
@@ -66,12 +68,15 @@ class ProductForm(forms.ModelForm):
         ]
         widgets = {
             "name": forms.TextInput(
-                attrs={"placeholder": "Ex.: Cafe Premium 500g", "class": "form-dark"}
+                attrs={"placeholder": "Ex.: Tinta Azul 1L", "class": "form-dark"}
             ),
             "sku": forms.TextInput(
-                attrs={"placeholder": "Ex.: CAFE-500", "class": "form-dark"}
+                attrs={"placeholder": "Ex.: TIN-AZUL-001", "class": "form-dark"}
             ),
-            "minimum_stock": forms.NumberInput(attrs={"min": 0, "class": "form-dark"}),
+            "unit": forms.Select(attrs={"class": "form-dark form-select"}),
+            "minimum_stock": forms.NumberInput(
+                attrs={"min": "0", "step": "0.01", "class": "form-dark"}
+            ),
         }
 
 
@@ -95,11 +100,16 @@ class StockMovementForm(forms.ModelForm):
             ),
             "movement_type": forms.Select(attrs={"class": "form-dark form-select"}),
             "quantity": forms.NumberInput(
-                attrs={"min": 1, "class": "form-dark", "placeholder": "0"}
+                attrs={
+                    "min": "0.001",
+                    "step": "0.01",
+                    "class": "form-dark",
+                    "placeholder": "0",
+                }
             ),
             "reason": forms.TextInput(
                 attrs={
-                    "placeholder": "Ex.: Compra, venda, ajuste inicial",
+                    "placeholder": "Ex.: Compra de tinta, venda de tecido",
                     "class": "form-dark",
                 }
             ),
