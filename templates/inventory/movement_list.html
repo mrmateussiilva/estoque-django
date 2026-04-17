@@ -1,56 +1,106 @@
 {% extends "base.html" %}
 
-{% block title %}Historico | FinderBit Estoque{% endblock %}
-{% block page_title %}Historico{% endblock %}
+{% block title %}Movimentações | FinderBit Estoque{% endblock %}
+{% block page_title %}Histórico{% endblock %}
 
 {% block content %}
-<section class="vstack gap-4">
-    <div class="card border-0 shadow-sm">
-        <div class="card-body d-flex justify-content-between align-items-end flex-wrap gap-2">
-            <div>
-                <p class="text-uppercase small text-secondary fw-semibold mb-1">Rastreabilidade</p>
-                <h3 class="h4 mb-1">Historico de movimentacoes</h3>
-                <p class="text-secondary mb-0">Consulte entradas e saidas por produto, tipo e periodo.</p>
-            </div>
-            <a href="{% url 'inventory:movement-create' %}" class="btn btn-primary">Nova movimentacao</a>
-        </div>
+<!-- Cabeçalho -->
+<header class="page-header">
+    <div class="page-header__info">
+        <p class="page-header__label">Rastreabilidade</p>
+        <h1 class="page-header__title">Movimentações</h1>
     </div>
+    <div class="page-header__actions">
+        <a href="{% url 'inventory:movement-create' %}" class="btn-brand">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+            </svg>
+            Nova Movimentação
+        </a>
+    </div>
+</header>
 
-    <form method="get" class="card border-0 shadow-sm">
-        <div class="card-body row g-3 align-items-end">
-            <div class="col-md-6 col-lg"><label class="form-label">Produto</label><select name="product" class="form-select"><option value="">Todos</option>{% for product in products %}<option value="{{ product.pk }}" {% if filters.product == product.pk|stringformat:'s' %}selected{% endif %}>{{ product.name }}</option>{% endfor %}</select></div>
-            <div class="col-md-6 col-lg"><label class="form-label">Tipo</label><select name="type" class="form-select"><option value="">Todos</option>{% for value, label in movement_types %}<option value="{{ value }}" {% if filters.type == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></div>
-            <div class="col-md-6 col-lg"><label class="form-label">Data inicial</label><input type="date" name="start_date" value="{{ filters.start_date }}" class="form-control"></div>
-            <div class="col-md-6 col-lg"><label class="form-label">Data final</label><input type="date" name="end_date" value="{{ filters.end_date }}" class="form-control"></div>
-            <div class="col-md-6 col-lg"><label class="form-label">Ordenar por</label><select name="ordering" class="form-select"><option value="date_desc" {% if filters.ordering == 'date_desc' %}selected{% endif %}>Mais recentes</option><option value="date_asc" {% if filters.ordering == 'date_asc' %}selected{% endif %}>Mais antigas</option><option value="product" {% if filters.ordering == 'product' %}selected{% endif %}>Produto</option><option value="quantity_desc" {% if filters.ordering == 'quantity_desc' %}selected{% endif %}>Maior quantidade</option><option value="quantity_asc" {% if filters.ordering == 'quantity_asc' %}selected{% endif %}>Menor quantidade</option></select></div>
-            <div class="col-12 d-flex justify-content-between flex-wrap gap-2">
-                <a href="{% url 'inventory:movement-export' %}{% querystring %}" class="btn btn-outline-secondary btn-sm">Exportar CSV</a>
-                <div class="d-flex gap-2"><a href="{% url 'inventory:movement-list' %}" class="btn btn-outline-secondary btn-sm">Limpar</a><button class="btn btn-dark btn-sm">Filtrar</button></div>
+<!-- Filtros -->
+<div class="filter-bar mb-4">
+    <p class="filter-bar__title">Filtrar movimentações</p>
+    <form method="get" class="row g-3">
+        <div class="col-md-4 col-lg-3">
+            <label class="form-label-custom">Produto</label>
+            <select name="product" class="form-select-custom">
+                <option value="">Todos</option>
+                {% for product in products %}
+                <option value="{{ product.pk }}">{{ product.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <label class="form-label-custom">Tipo</label>
+            <select name="type" class="form-select-custom">
+                <option value="">Todos</option>
+                <option value="in">Entrada</option>
+                <option value="out">Saída</option>
+            </select>
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <label class="form-label-custom">Data Inicial</label>
+            <input type="date" name="start_date" class="form-control-custom">
+        </div>
+        <div class="col-md-4 col-lg-2">
+            <label class="form-label-custom">Data Final</label>
+            <input type="date" name="end_date" class="form-control-custom">
+        </div>
+        <div class="col-12 col-lg-3">
+            <label class="form-label-custom">&nbsp;</label>
+            <div class="filter-bar__actions">
+                <button type="submit" class="btn filter-bar__btn filter-bar__btn--submit">
+                    Filtrar
+                </button>
+                <a href="{% url 'inventory:movement-list' %}" class="btn filter-bar__btn filter-bar__btn--clear">
+                    Limpar
+                </a>
             </div>
         </div>
     </form>
+</div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="table-light"><tr><th>Data</th><th>Produto</th><th>Tipo</th><th>Quantidade</th><th>Motivo</th></tr></thead>
-                <tbody>
-                    {% for movement in movements %}
-                        <tr>
-                            <td>{{ movement.created_at|date:"d/m/Y H:i" }}</td>
-                            <td><div class="fw-semibold">{{ movement.product.name }}</div><small class="text-secondary">{{ movement.product.sku }}</small></td>
-                            <td>{% if movement.movement_type == 'in' %}<span class="badge text-bg-success">{{ movement.get_movement_type_display }}</span>{% else %}<span class="badge text-bg-danger">{{ movement.get_movement_type_display }}</span>{% endif %}</td>
-                            <td class="fw-semibold">{{ movement.quantity }}</td>
-                            <td>{{ movement.reason }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr><td colspan="5" class="text-center py-4 text-secondary">Nenhuma movimentacao encontrada.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    {% include "components/pagination.html" %}
-</section>
+<!-- Tabela -->
+<div class="table-container">
+    <table class="table-custom">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Produto</th>
+                <th>Tipo</th>
+                <th>Quantidade</th>
+                <th>Motivo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movement in movements %}
+            <tr>
+                <td class="cell-muted">{{ movement.created_at|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <div class="fw-medium">{{ movement.product.name }}</div>
+                    <small class="cell-muted">{{ movement.product.sku }}</small>
+                </td>
+                <td>
+                    {% if movement.movement_type == 'in' %}
+                    <span class="badge-custom badge-entry-custom">Entrada</span>
+                    {% else %}
+                    <span class="badge-custom badge-exit-custom">Saída</span>
+                    {% endif %}
+                </td>
+                <td class="cell-number">{{ movement.quantity }}</td>
+                <td>{{ movement.reason }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center py-4 text-muted-custom">
+                    Nenhuma movimentação encontrada.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
