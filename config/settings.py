@@ -63,29 +63,41 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+VERCEL = os.getenv("VERCEL", "false").lower() == "true"
+
 if os.getenv("DATABASE_URL"):
     parsed_db_url = urlparse(os.getenv("DATABASE_URL"))
     db_engine_map = {
         "postgres": "django.db.backends.postgresql",
         "postgresql": "django.db.backends.postgresql",
     }
-    DATABASES["default"] = {
-        "ENGINE": db_engine_map.get(
-            parsed_db_url.scheme, "django.db.backends.postgresql"
-        ),
-        "NAME": parsed_db_url.path.lstrip("/"),
-        "USER": parsed_db_url.username,
-        "PASSWORD": parsed_db_url.password,
-        "HOST": parsed_db_url.hostname,
-        "PORT": parsed_db_url.port or "",
-        "CONN_MAX_AGE": 600,
-        "OPTIONS": {"sslmode": "require"} if not DEBUG else {},
+    DATABASES = {
+        "default": {
+            "ENGINE": db_engine_map.get(
+                parsed_db_url.scheme, "django.db.backends.postgresql"
+            ),
+            "NAME": parsed_db_url.path.lstrip("/"),
+            "USER": parsed_db_url.username,
+            "PASSWORD": parsed_db_url.password,
+            "HOST": parsed_db_url.hostname,
+            "PORT": parsed_db_url.port or "",
+            "CONN_MAX_AGE": 600,
+            "OPTIONS": {"sslmode": "require"} if not DEBUG else {},
+        }
+    }
+elif VERCEL:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": "/tmp/db.sqlite3",
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
 
 AUTH_PASSWORD_VALIDATORS = [
