@@ -1,34 +1,34 @@
 /* ========================================
-   FINDERBIT ESTOQUE - Emerald & Slate Design System
+   FINDERBIT ESTOQUE - Ruby Red Design System
    ======================================== */
 
 :root {
     /* === FUNDOS === */
-    --bg-body: #0b0f1a;
-    --bg-surface: #161b2b;
-    --bg-surface-elevated: #1e2536;
-    --bg-surface-hover: #252d40;
-    --bg-sidebar: #0d1117;
-    --bg-input: #1e2536;
+    --bg-body: #09090b;
+    --bg-surface: #18181b;
+    --bg-surface-elevated: #1f1f23;
+    --bg-surface-hover: #27272a;
+    --bg-sidebar: #09090b;
+    --bg-input: #1f1f23;
 
-    /* === COR DA MARCA - EMERALD === */
-    --brand: #10b981;
-    --brand-hover: #059669;
+    /* === COR DA MARCA - RUBY === */
+    --brand: #e11d48;
+    --brand-hover: #be123c;
     --brand-text: #ffffff;
-    --brand-bg: rgba(16, 185, 129, 0.1);
-    --brand-glow: rgba(16, 185, 129, 0.3);
+    --brand-bg: rgba(225, 29, 72, 0.1);
+    --brand-glow: rgba(225, 29, 72, 0.4);
 
     /* === CORES DE ESTADO === */
-    --success: #10b981;
-    --success-bg: rgba(16, 185, 129, 0.1);
-    --success-text: #34d399;
+    --success: #e11d48;
+    --success-bg: rgba(225, 29, 72, 0.1);
+    --success-text: #fb7185;
     
     --warning: #f59e0b;
     --warning-bg: rgba(245, 158, 11, 0.1);
     --warning-text: #fbbf24;
     
-    --danger: #f43f5e;
-    --danger-bg: rgba(244, 63, 94, 0.1);
+    --danger: #e11d48;
+    --danger-bg: rgba(225, 29, 72, 0.1);
     --danger-text: #fb7185;
     
     --info: #06b6d4;
@@ -36,15 +36,15 @@
     --info-text: #22d3ee;
 
     /* === TEXTO === */
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    --text-primary: #ffffff;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
     --text-inverse: #ffffff;
 
     /* === BORDAS === */
-    --border-color: #1e293b;
-    --border-subtle: #1e293b;
-    --border-focus: #10b981;
+    --border-color: #27272a;
+    --border-subtle: #27272a;
+    --border-focus: #e11d48;
 
     /* === ESPAÇAMENTO === */
     --radius-sm: 4px;
@@ -53,9 +53,9 @@
     --radius-xl: 16px;
 
     /* === SOMBRAS === */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
 
     /* === TIPOGRAFIA === */
     --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -239,7 +239,7 @@ body {
 }
 
 /* ========================================
-   BADGES DE STATUS (Glass Effect)
+   BADGES DE STATUS (Glass Ruby Effect)
    ======================================== */
 
 .badge-custom {
@@ -264,69 +264,69 @@ body {
 }
 
 .badge-success-custom {
-    background-color: rgba(16, 185, 129, 0.15);
-    color: #34d399;
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    background-color: rgba(225, 29, 72, 0.1);
+    color: #fb7185;
+    border: 1px solid rgba(225, 29, 72, 0.3);
 }
 
 .badge-success-custom::before {
-    background-color: #10b981;
-    box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+    background-color: #e11d48;
+    box-shadow: 0 0 8px rgba(225, 29, 72, 0.6);
 }
 
 .badge-warning-custom {
-    background-color: rgba(245, 158, 11, 0.15);
+    background-color: rgba(245, 158, 11, 0.1);
     color: #fbbf24;
     border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .badge-warning-custom::before {
     background-color: #f59e0b;
-    box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
 }
 
 .badge-danger-custom {
-    background-color: rgba(244, 63, 94, 0.15);
+    background-color: rgba(225, 29, 72, 0.1);
     color: #fb7185;
-    border: 1px solid rgba(244, 63, 94, 0.25);
+    border: 1px solid rgba(225, 29, 72, 0.3);
 }
 
 .badge-danger-custom::before {
-    background-color: #f43f5e;
-    box-shadow: 0 0 6px rgba(244, 63, 94, 0.5);
+    background-color: #e11d48;
+    box-shadow: 0 0 8px rgba(225, 29, 72, 0.6);
 }
 
 .badge-info-custom {
-    background-color: rgba(6, 182, 212, 0.15);
+    background-color: rgba(6, 182, 212, 0.1);
     color: #22d3ee;
     border: 1px solid rgba(6, 182, 212, 0.25);
 }
 
 .badge-info-custom::before {
     background-color: #06b6d4;
-    box-shadow: 0 0 6px rgba(6, 182, 212, 0.5);
+    box-shadow: 0 0 8px rgba(6, 182, 212, 0.6);
 }
 
 .badge-entry-custom {
-    background-color: rgba(16, 185, 129, 0.15);
-    color: #34d399;
-    border: 1px solid rgba(16, 185, 129, 0.25);
+    background-color: rgba(225, 29, 72, 0.1);
+    color: #fb7185;
+    border: 1px solid rgba(225, 29, 72, 0.3);
 }
 
 .badge-entry-custom::before {
-    background-color: #10b981;
-    box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+    background-color: #e11d48;
+    box-shadow: 0 0 8px rgba(225, 29, 72, 0.6);
 }
 
 .badge-exit-custom {
-    background-color: rgba(244, 63, 94, 0.15);
+    background-color: rgba(225, 29, 72, 0.1);
     color: #fb7185;
-    border: 1px solid rgba(244, 63, 94, 0.25);
+    border: 1px solid rgba(225, 29, 72, 0.3);
 }
 
 .badge-exit-custom::before {
-    background-color: #f43f5e;
-    box-shadow: 0 0 6px rgba(244, 63, 94, 0.5);
+    background-color: #e11d48;
+    box-shadow: 0 0 8px rgba(225, 29, 72, 0.6);
 }
 
 /* ========================================
