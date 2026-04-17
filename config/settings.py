@@ -104,14 +104,14 @@ if os.getenv("DATABASE_URL"):
                 "OPTIONS": {"sslmode": "require"} if not DEBUG else {},
             }
         }
-elif os.getenv("MYSQL_HOST"):
+elif VERCEL and os.getenv("MYSQL_HOST"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.mysql",
-            "NAME": os.getenv("MYSQL_NAME", "estoquefb"),
-            "USER": os.getenv("MYSQL_USER", "mateus1"),
-            "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
-            "HOST": os.getenv("MYSQL_HOST", "estoquefb.mysql.uhserver.com"),
+            "NAME": os.getenv("MYSQL_NAME"),
+            "USER": os.getenv("MYSQL_USER"),
+            "PASSWORD": os.getenv("MYSQL_PASSWORD"),
+            "HOST": os.getenv("MYSQL_HOST"),
             "PORT": int(os.getenv("MYSQL_PORT", 3306)),
             "OPTIONS": {
                 "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -133,6 +133,14 @@ else:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
+
+if VERCEL:
+    ALLOWED_HOSTS = [
+        os.getenv("VERCEL_URL", "localhost"),
+        f"https://{os.getenv('VERCEL_URL')}"
+        if os.getenv("VERCEL_URL")
+        else "localhost",
+    ]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
