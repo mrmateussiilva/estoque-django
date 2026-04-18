@@ -1,116 +1,169 @@
-# FinderBit Estoque MVP
+# FinderBit Estoque
 
-MVP de um micro SaaS de controle de estoque com Django, renderizacao server-side, HTMX e Tailwind via CDN.
+Sistema de gestão de estoque com Django, Bootstrap 5 e HTMX SPA.
 
-## Stack
+![Django](https://img.shields.io/badge/Django-5.1+-092E2?style=flat&logo=django)
+![Python](https://img.shields.io/badge/Python-3.13+-3776AB?style=flat&logo=python)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-7952B3?style=flat&logo=bootstrap)
+![HTMX](https://img.shields.io/badge/HTMX-OK-blue?style=flat)
 
-- Python 3.13
-- Django
-- SQLite
-- Django Templates
-- HTMX
-- Tailwind CSS
+## ✨ Funcionalidades
 
-## Estrutura
+- 📦 Cadastro de produtos com múltiplas unidades (UN, MT, LT, KG, FL, PC)
+- 🔄 Movimentações de entrada/saída com controle de estoque
+- 🎨 Design System Ruby Red com Light/Dark Mode
+- ⚡ Interface SPA com HTMX (sem page reload)
+- 📱 Responsivo (Mobile-friendly)
+- 🔗 Banco de dados MySQL/PostgreSQL/SQLite
 
-- `config`: configuracao central do projeto
-- `accounts`: empresa, perfil do usuario, login e contexto da empresa
-- `dashboard`: indicadores iniciais do painel
-- `inventory`: produtos, movimentacoes, estoque atual, historico e seed
+## 🚀 Quick Start
 
-## Regras implementadas
-
-- saldo de estoque calculado apenas a partir das movimentacoes
-- entrada soma quantidade
-- saida subtrai quantidade
-- saida com saldo negativo e bloqueada na validacao do model
-- todo produto e movimentacao pertence a uma empresa
-- todo usuario autenticado opera dentro da empresa vinculada em `UserProfile`
-- listagens e operacoes filtradas pela empresa do usuario autenticado
-
-## Funcionalidades da Sprint 1
-
-- categorias estruturadas por empresa
-- busca, filtros e ordenacao em produtos
-- busca, filtros e ordenacao em estoque atual
-- filtros e ordenacao no historico
-- exportacao CSV de produtos, estoque atual e movimentacoes
-- dashboard com periodo de analise e metricas operacionais
-
-## Como rodar
-
-1. Crie e ative um ambiente virtual.
-2. Instale as dependencias:
+### Desenvolvimento Local
 
 ```bash
+# 1. Clonar e entrar no diretório
+cd estoque-django
+
+# 2. Criar ambiente virtual
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate  # Windows
+
+# 3. Instalar dependências
 pip install -r requirements.txt
-```
 
-3. Execute as migracoes:
+# 4. Criar arquivo .env
+cp .env.example.dev .env
 
-```bash
+# 5. Executar migrações
 python manage.py migrate
-```
 
-4. Opcional: carregar dados de exemplo:
+# 6. Criar superusuário
+python manage.py createsuperuser
 
-```bash
-python manage.py seed_mvp
-```
-
-5. Inicie o servidor:
-
-```bash
+# 7. Executar servidor
 python manage.py runserver
 ```
 
-6. Acesse:
+Acesse: http://localhost:8000
 
-- app: `http://127.0.0.1:8000/accounts/login/`
-- admin: `http://127.0.0.1:8000/admin/`
+---
 
-## Usuario demo
+## 🐳 Docker
 
-Ao rodar `seed_mvp`:
-
-- usuario: `demo`
-- senha: `demo1234`
-
-## Admin
-
-Para criar um superusuario:
+### Desenvolvimento
 
 ```bash
-python manage.py createsuperuser
+cp .env.example.dev .env
+docker compose up --build
 ```
 
-No admin, associe usuarios a empresas criando ou editando `UserProfile`.
-
-## Deploy na Vercel (Django)
-
-O projeto agora esta configurado para deploy na Vercel com runtime Python via `api/index.py` e `vercel.json`.
-
-### 1) Variaveis de ambiente recomendadas
-
-Configure no painel da Vercel:
-
-- `DJANGO_SECRET_KEY`: chave secreta forte para producao.
-- `DJANGO_DEBUG`: `False` em producao.
-- `DJANGO_ALLOWED_HOSTS`: por exemplo `.vercel.app,seu-dominio.com`.
-- `DJANGO_CSRF_TRUSTED_ORIGINS`: por exemplo `https://seu-projeto.vercel.app,https://seu-dominio.com`.
-- `DATABASE_URL`: URL de banco Postgres (Neon, Supabase, etc).
-
-### 2) Banco de dados
-
-Em producao, use Postgres via `DATABASE_URL`. O SQLite local nao e recomendado para Vercel.
-
-### 3) Comandos uteis antes do deploy
+### Produção
 
 ```bash
-python manage.py check --deploy
+cp .env.example.prod .env
+docker compose up --build -d
+```
+
+---
+
+## 📋 Variáveis de Ambiente
+
+### `.env.prod` (Produção)
+
+| Variável | Descrição | Exemplo |
+|---------|----------|---------|
+| `DJANGO_SECRET_KEY` | Chave secreta do Django | `gere-em-djec.in/secret/` |
+| `DJANGO_DEBUG` | Modo debug | `False` |
+| `ALLOWED_HOSTS` | Domínios permitidos | `estoque.com.br` |
+| `DOMAIN` | Domínio principal | `https://estoque.com.br` |
+| `CSRF_TRUSTED_ORIGINS` | Origens CSRF | `https://estoque.com.br` |
+| `MYSQL_HOST` | Host do MySQL | `estoquefb.mysql.uhserver.com` |
+| `MYSQL_PORT` | Porta do MySQL | `3306` |
+| `MYSQL_NAME` | Nome do banco | `estoquefb` |
+| `MYSQL_USER` | Usuário do MySQL | `mateus1` |
+| `MYSQL_PASSWORD` | Senha do MySQL | `***` |
+| `HOST` | Host do servidor | `0.0.0.0` |
+| `HOST_PORT` | Porta do servidor | `8000` |
+
+### `.env.dev` (Desenvolvimento)
+
+| Variável | Descrição | Exemplo |
+|----------|----------|---------|
+| `DJANGO_DEBUG` | Modo debug | `True` |
+| `ALLOWED_HOSTS` | Domínios permitidos | `localhost,127.0.0.1` |
+| `CSRF_TRUSTED_ORIGINS` | Origens CSRF | `http://localhost:8000` |
+| `MYSQL_HOST` | (opcional) | `localhost` |
+
+---
+
+## 🎯 Unidades de Medida
+
+O sistema suporta materiais de confecção e estamparia:
+
+| Código | Descrição | Uso típico |
+|--------|----------|-----------|
+| `UN` | Unidade | Peças avulsas |
+| `MT` | Metros | Tecidos, fitas |
+| `LT` | Litros | Tintas, solventes |
+| `KG` | Quilos | Aviamentos |
+| `FL` | Folhas | Papel, papelão |
+| `PC` | Peças | Zíper, botão |
+
+---
+
+## 📁 Estrutura
+
+```
+estoque-django/
+├── accounts/          # Autenticação
+├── core/             # Template tags
+├── dashboard/        # Dashboard
+├── inventory/        # Estoque
+├── templates/        # Templates HTML
+├── static/           # CSS, JS, imagens
+├── config/           # Configurações Django
+├── Dockerfile       # Container Docker
+├── docker-compose.yml
+├── requirements.txt
+└── manage.py
+```
+
+---
+
+## 🔧 Comandos Úteis
+
+```bash
+# Migrações
+python manage.py makemigrations
 python manage.py migrate
+
+# Coletar static
+python manage.py collectstatic --noinput
+
+# Criar superusuário
+python manage.py createsuperuser
+
+# Shell Django
+python manage.py shell
+
+# Testar conexão com banco
+python manage.py dbshell
 ```
 
-### 4) Observacao sobre migracoes
+---
 
-Em Vercel, migracoes nao rodam automaticamente. Execute `python manage.py migrate` conectado ao mesmo banco de producao sempre que houver novas migracoes.
+## 🔐 Segurança (Produção)
+
+- ✅ `DJANGO_DEBUG=False`
+- ✅ `SESSION_COOKIE_SECURE=True`
+- ✅ `CSRF_COOKIE_SECURE=True`
+- ✅ Altere `DJANGO_SECRET_KEY`
+- ✅ Use HTTPS
+- ✅ Configure firewall (libere só a porta 80/443)
+
+---
+
+## 📄 Licença
+
+MIT © FinderBit
