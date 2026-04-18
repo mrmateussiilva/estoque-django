@@ -5,7 +5,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     curl \
     && rm -rf /var/lib/apt/lists/* \
-    && useradd --create-home --shell /bin/bash django
+    && useradd --create-home --shell /bin/bash django \
+    && mkdir -p /app/staticfiles /app/media \
+    && chown -R django:django /app
 
 USER django
 
@@ -16,10 +18,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY --chown=django:django . .
 
-RUN mkdir -p /app/staticfiles /app/media
-
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV PATH=/home/django/.local/bin:$PATH
 
 EXPOSE 8000
 
