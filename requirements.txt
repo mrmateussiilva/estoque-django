@@ -1,5 +1,6 @@
 django>=5.1,<6
 gunicorn>=23,<24
+uvicorn>=0.34,<1
 PyMySQL>=1.1,<2
 python-dotenv>=1.0,<2
 psycopg[binary]>=3.2,<4

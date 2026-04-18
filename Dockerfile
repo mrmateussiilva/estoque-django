@@ -24,4 +24,4 @@ ENV PATH=/home/django/.local/bin:$PATH
 
 EXPOSE 8000
 
-CMD ["gunicorn", "config.asgi:application", "--bind", ":8000", "--workers", "2"]
+CMD ["gunicorn", "config.asgi:application", "--bind", ":8000", "--workers", "2", "-k", "uvicorn.workers.UvicornWorker"]
