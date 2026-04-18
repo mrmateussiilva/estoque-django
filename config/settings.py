@@ -15,9 +15,7 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DJANGO_DEBUG", "True").lower() == "true"
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.getenv(
-        "DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost,.vercel.app"
-    ).split(",")
+    for host in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,.vercel.app").split(",")
     if host.strip()
 ]
 
@@ -67,6 +65,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
 VERCEL = os.getenv("VERCEL", "false").lower() == "true"
+DOCKER = os.getenv("DOCKER", "false").lower() == "true"
 
 if os.getenv("DATABASE_URL"):
     parsed_db_url = urlparse(os.getenv("DATABASE_URL"))
@@ -104,19 +103,22 @@ if os.getenv("DATABASE_URL"):
                 "OPTIONS": {"sslmode": "require"} if not DEBUG else {},
             }
         }
-elif VERCEL and os.getenv("MYSQL_HOST"):
+elif os.getenv("MYSQL_HOST"):
+    db_options = {
+        "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+        "charset": "utf8mb4",
+    }
+    if DOCKER:
+        db_options["host"] = os.getenv("MYSQL_HOST", "host.docker.internal")
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.mysql",
-            "NAME": os.getenv("MYSQL_NAME"),
-            "USER": os.getenv("MYSQL_USER"),
-            "PASSWORD": os.getenv("MYSQL_PASSWORD"),
-            "HOST": os.getenv("MYSQL_HOST"),
+            "NAME": os.getenv("MYSQL_NAME", "estoquefb"),
+            "USER": os.getenv("MYSQL_USER", "mateus1"),
+            "PASSWORD": os.getenv("MYSQL_PASSWORD", ""),
+            "HOST": os.getenv("MYSQL_HOST", "estoquefb.mysql.uhserver.com"),
             "PORT": int(os.getenv("MYSQL_PORT", 3306)),
-            "OPTIONS": {
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-                "charset": "utf8mb4",
-            },
+            "OPTIONS": db_options,
         }
     }
 elif VERCEL:
@@ -130,7 +132,7 @@ else:
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
+            "NAME": BASE_DIR / os.getenv("DATABASE_NAME", "db.sqlite3"),
         }
     }
 
@@ -166,6 +168,11 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+MEDIA_URL = "/media/"
+
+HOST = os.getenv("HOST", "0.0.0.0")
+HOST_PORT = int(os.getenv("HOST_PORT", "8000"))
+
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard:home"
 LOGOUT_REDIRECT_URL = "login"
@@ -174,9 +181,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+    for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
     if origin.strip()
 ]
+
+DOMAIN = os.getenv("DOMAIN", "")
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

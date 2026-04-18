@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: finderbit-web
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    ports:
+      - "${HOST_PORT:-8000}:8000"
+    volumes:
+      - staticfiles:/app/staticfiles
+      - media:/app/media
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - HOST=${HOST:-0.0.0.0}
+
+volumes:
+  staticfiles:
+  media:
+
+networks:
+  default:
+    name: finderbit-network
