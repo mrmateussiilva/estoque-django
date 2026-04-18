@@ -18,10 +18,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY --chown=django:django . .
 
+COPY --chown=django:django entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PATH=/home/django/.local/bin:$PATH
 
 EXPOSE 8000
 
-CMD ["gunicorn", "config.asgi:application", "--bind", ":8000", "--workers", "2", "-k", "uvicorn.workers.UvicornWorker"]
+ENTRYPOINT ["/entrypoint.sh"]
