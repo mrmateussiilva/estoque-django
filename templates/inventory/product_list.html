@@ -81,7 +81,7 @@
 </div>
 
 <!-- Modal de Produto -->
-<div class="modal" id="modalProduct" tabindex="-1">
+<div class="modal" id="modalProduct" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" id="modalProductContent">
             <div hx-get="{% url 'inventory:product-create' %}" hx-trigger="revealed" hx-swap="innerHTML">

@@ -28,7 +28,14 @@ class ProductQuerySet(CompanyQuerySet):
         movement_totals = (
             StockMovement.objects.filter(product=OuterRef("pk"))
             .values("product")
-            .annotate(total=Coalesce(Sum(signed_quantity_expression()), Value(0)))
+            .annotate(
+                total=Coalesce(
+                    Sum(signed_quantity_expression()),
+                    Value(
+                        0, output_field=DecimalField(max_digits=12, decimal_places=3)
+                    ),
+                )
+            )
             .values("total")[:1]
         )
         return self.annotate(
@@ -37,7 +44,7 @@ class ProductQuerySet(CompanyQuerySet):
                     movement_totals,
                     output_field=DecimalField(max_digits=12, decimal_places=3),
                 ),
-                Value(0),
+                Value(0, output_field=DecimalField(max_digits=12, decimal_places=3)),
             )
         )
 

@@ -21,7 +21,7 @@
                   hx-target="#movements-table"
                   hx-swap="innerHTML"
                   hx-trigger="submit"
-                  hx-on::after-request="if(event.detail.successful) { this.reset(); bootstrap.Modal.getInstance(document.getElementById('modalMovement')).hide(); }">
+                  hx-on::after-request="if(event.detail.successful) { this.reset(); var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalMovement')); if(modal) modal.hide(); }">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="{{ movement_form.product.id_for_label }}" class="form-label-custom">{{ movement_form.product.label }}</label>
@@ -47,7 +47,7 @@
                 <div class="form-group">
                     <label for="{{ movement_form.created_at.id_for_label }}" class="form-label-custom">{{ movement_form.created_at.label }}</label>
                     {{ movement_form.created_at }}
-                    {% for error in movement_form.created_at.errors %}<div class="form-error">{{ error }}</% endfor %}
+                    {% for error in movement_form.created_at.errors %}<div class="form-error">{{ error }}</div>{% endfor %}
                 </div>
                 <div class="form-group">
                     <label for="{{ movement_form.reason.id_for_label }}" class="form-label-custom">{{ movement_form.reason.label }}</label>

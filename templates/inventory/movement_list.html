@@ -72,7 +72,7 @@
 </div>
 
 <!-- Modal de Movimentação -->
-<div class="modal" id="modalMovement" tabindex="-1">
+<div class="modal" id="modalMovement" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" id="modalMovementContent">
             <div hx-get="{% url 'inventory:movement-create' %}" hx-trigger="revealed" hx-swap="innerHTML">

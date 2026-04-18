@@ -119,13 +119,6 @@
             event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
         });
         
-        document.body.addEventListener('htmx:afterSwap', function(event) {
-            if (event.detail.target.classList.contains('modal')) {
-                var modal = new bootstrap.Modal(event.detail.target);
-                modal.show();
-            }
-        });
-        
         document.body.addEventListener('htmx:afterSettle', function(event) {
             if (event.detail.target.classList.contains('table-container') || 
                 event.detail.target.closest('.htmx-table')) {

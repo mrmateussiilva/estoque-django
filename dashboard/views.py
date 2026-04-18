@@ -2,6 +2,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import models
 from django.db.models import F, Sum, Value
 from django.db.models.functions import Coalesce, TruncDate
+from django.db.models.fields import DecimalField
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import TemplateView
 
@@ -33,10 +35,14 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ).count()
         period_entries = period_movements.filter(
             movement_type=StockMovement.TYPE_IN
-        ).aggregate(total=Coalesce(Sum("quantity"), Value(0)))["total"]
+        ).aggregate(
+            total=Coalesce(Sum("quantity"), Value(0, output_field=DecimalField()))
+        )["total"]
         period_exits = period_movements.filter(
             movement_type=StockMovement.TYPE_OUT
-        ).aggregate(total=Coalesce(Sum("quantity"), Value(0)))["total"]
+        ).aggregate(
+            total=Coalesce(Sum("quantity"), Value(0, output_field=DecimalField()))
+        )["total"]
         products_without_recent_movement = stock_qs.filter(
             models.Q(last_movement_at__lt=since)
             | models.Q(last_movement_at__isnull=True)
@@ -44,7 +50,9 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         daily_totals = (
             period_movements.annotate(day=TruncDate("created_at"))
             .values("day", "movement_type")
-            .annotate(total=Coalesce(Sum("quantity"), Value(0)))
+            .annotate(
+                total=Coalesce(Sum("quantity"), Value(0, output_field=DecimalField()))
+            )
             .order_by("day")
         )
         entries_by_day = {}
