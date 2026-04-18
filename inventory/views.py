@@ -111,7 +111,7 @@ class ProductDetailView(ProductQueryMixin, DetailView):
 class ProductCreateView(CompanyScopedMixin, CreateView):
     model = Product
     form_class = ProductForm
-    template_name = "inventory/partials/modal_product_form.html"
+    template_name = "inventory/product_form_page.html"
     partial_template_name = "inventory/partials/modal_product_form.html"
     success_url = reverse_lazy("inventory:product-list")
 
@@ -121,7 +121,7 @@ class ProductCreateView(CompanyScopedMixin, CreateView):
         return kwargs
 
     def get_template_names(self):
-        if self.is_htmx():
+        if self.is_htmx() and not self.is_boosted():
             return [self.partial_template_name]
         return [self.template_name]
 
@@ -139,7 +139,7 @@ class ProductCreateView(CompanyScopedMixin, CreateView):
 class ProductUpdateView(ProductQueryMixin, UpdateView):
     model = Product
     form_class = ProductForm
-    template_name = "inventory/product_form.html"
+    template_name = "inventory/product_form_page.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -154,7 +154,7 @@ class ProductUpdateView(ProductQueryMixin, UpdateView):
 class MovementCreateView(CompanyScopedMixin, CreateView):
     model = StockMovement
     form_class = StockMovementForm
-    template_name = "inventory/partials/modal_movement_form.html"
+    template_name = "inventory/movement_form.html"
     partial_template_name = "inventory/partials/modal_movement_form.html"
     success_url = reverse_lazy("inventory:movement-list")
 
@@ -164,7 +164,7 @@ class MovementCreateView(CompanyScopedMixin, CreateView):
         return kwargs
 
     def get_template_names(self):
-        if self.is_htmx():
+        if self.is_htmx() and not self.is_boosted():
             return [self.partial_template_name]
         return [self.template_name]
 
