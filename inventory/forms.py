@@ -20,6 +20,7 @@ class ProductForm(forms.ModelForm):
             company
         ).order_by("name")
         self.fields["category"].required = False
+        self.fields["category"].empty_label = "Selecione (opcional)"
 
         for name, field in self.fields.items():
             if name == "active":
@@ -34,6 +35,9 @@ class ProductForm(forms.ModelForm):
         self.fields["minimum_stock"].widget.attrs["min"] = "0"
         self.fields["minimum_stock"].widget.attrs["step"] = "0.01"
 
+        self.fields["total_metragem"].widget.attrs["step"] = "0.01"
+        self.fields["total_litros"].widget.attrs["step"] = "0.01"
+
     def clean(self):
         cleaned_data = super().clean()
         category = cleaned_data.get("category")
@@ -45,7 +49,7 @@ class ProductForm(forms.ModelForm):
 
     def save(self, commit=True):
         category = self.cleaned_data.get("category")
-        new_category = (cleaned_data.get("new_category") or "").strip()
+        new_category = (self.cleaned_data.get("new_category") or "").strip()
 
         if not category and new_category:
             category, _ = Category.objects.get_or_create(
@@ -60,22 +64,62 @@ class ProductForm(forms.ModelForm):
         fields = [
             "name",
             "sku",
+            "product_type",
             "category",
             "new_category",
             "unit",
             "minimum_stock",
             "active",
+            "fornecedor",
+            "total_metragem",
+            "quantidade_rolos",
+            "tinta_tipo",
+            "total_litros",
+            "quantidade_baldes",
+            "papel_gramatura",
         ]
         widgets = {
             "name": forms.TextInput(
-                attrs={"placeholder": "Ex.: Tinta Azul 1L", "class": "form-dark"}
+                attrs={"placeholder": "Ex.: Tecido Cotton", "class": "form-dark"}
             ),
             "sku": forms.TextInput(
-                attrs={"placeholder": "Ex.: TIN-AZUL-001", "class": "form-dark"}
+                attrs={"placeholder": "Ex.: TEC-COT-001", "class": "form-dark"}
             ),
+            "product_type": forms.Select(attrs={"class": "form-dark form-select"}),
             "unit": forms.Select(attrs={"class": "form-dark form-select"}),
             "minimum_stock": forms.NumberInput(
                 attrs={"min": "0", "step": "0.01", "class": "form-dark"}
+            ),
+            "fornecedor": forms.TextInput(
+                attrs={"placeholder": "Nome do fornecedor", "class": "form-dark"}
+            ),
+            "total_metragem": forms.NumberInput(
+                attrs={
+                    "min": "0",
+                    "step": "0.01",
+                    "class": "form-dark",
+                    "placeholder": "Metros",
+                }
+            ),
+            "quantidade_rolos": forms.NumberInput(
+                attrs={"min": "0", "class": "form-dark", "placeholder": "Rolos"}
+            ),
+            "tinta_tipo": forms.TextInput(
+                attrs={"placeholder": "Ex: Acrílica, Têxtil", "class": "form-dark"}
+            ),
+            "total_litros": forms.NumberInput(
+                attrs={
+                    "min": "0",
+                    "step": "0.01",
+                    "class": "form-dark",
+                    "placeholder": "Litros",
+                }
+            ),
+            "quantidade_baldes": forms.NumberInput(
+                attrs={"min": "0", "class": "form-dark", "placeholder": "Baldes/Latas"}
+            ),
+            "papel_gramatura": forms.TextInput(
+                attrs={"placeholder": "Ex: 180g, 300g", "class": "form-dark"}
             ),
         }
 

@@ -81,12 +81,25 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    TYPE_TECIDO = "tecido"
+    TYPE_TINTA = "tinta"
+    TYPE_PAPEL = "papel"
+    TYPE_GERAL = "geral"
+
+    TYPE_CHOICES = [
+        (TYPE_TECIDO, "Tecido"),
+        (TYPE_TINTA, "Tinta"),
+        (TYPE_PAPEL, "Papel"),
+        (TYPE_GERAL, "Geral (Aviamentos)"),
+    ]
+
     UNIT_UN = "un"
     UNIT_MT = "mt"
     UNIT_LT = "lt"
     UNIT_KG = "kg"
     UNIT_FL = "fl"
     UNIT_PC = "pc"
+    UNIT_ROLO = "rolo"
 
     UNIT_CHOICES = [
         (UNIT_UN, "Unidade (UN)"),
@@ -95,6 +108,7 @@ class Product(models.Model):
         (UNIT_KG, "Quilos (KG)"),
         (UNIT_FL, "Folhas (FL)"),
         (UNIT_PC, "Peças (PC)"),
+        (UNIT_ROLO, "Rolos"),
     ]
 
     UNIT_SUFFIX_MAP = {
@@ -104,6 +118,7 @@ class Product(models.Model):
         UNIT_KG: "KG",
         UNIT_FL: "FL",
         UNIT_PC: "PC",
+        UNIT_ROLO: "RL",
     }
 
     company = models.ForeignKey(
@@ -111,14 +126,22 @@ class Product(models.Model):
     )
     name = models.CharField("nome", max_length=150)
     sku = models.CharField(max_length=60)
+    product_type = models.CharField(
+        "tipo de material",
+        max_length=10,
+        choices=TYPE_CHOICES,
+        default=TYPE_GERAL,
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
         related_name="products",
         verbose_name="categoria",
+        blank=True,
+        null=True,
     )
     unit = models.CharField(
-        "unidade", max_length=2, choices=UNIT_CHOICES, default=UNIT_UN
+        "unidade", max_length=4, choices=UNIT_CHOICES, default=UNIT_UN
     )
     minimum_stock = models.DecimalField(
         "estoque minimo", max_digits=12, decimal_places=3, default=0
@@ -126,6 +149,59 @@ class Product(models.Model):
     active = models.BooleanField("ativo", default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    fornecedor = models.CharField(
+        "fornecedor",
+        max_length=150,
+        blank=True,
+        null=True,
+        help_text="Fornecedor do material",
+    )
+
+    total_metragem = models.DecimalField(
+        "metragem total (m)",
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text="Metragem total em metros (para Tecidos e Papéis)",
+    )
+    quantidade_rolos = models.PositiveIntegerField(
+        "quantidade de rolos",
+        blank=True,
+        null=True,
+        help_text="Número de rolos (para Tecidos e Papéis)",
+    )
+
+    tinta_tipo = models.CharField(
+        "tipo de tinta",
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="Ex: Acrílica, Têxtil, Serigráfica",
+    )
+    total_litros = models.DecimalField(
+        "litros total",
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text="Volume total em litros (para Tintas)",
+    )
+    quantidade_baldes = models.PositiveIntegerField(
+        "quantidade de baldes/latas",
+        blank=True,
+        null=True,
+        help_text="Número de baldes ou latas (para Tintas)",
+    )
+
+    papel_gramatura = models.CharField(
+        "gramatura (g/m²)",
+        max_length=20,
+        blank=True,
+        null=True,
+        help_text="Gramatura do papel (ex: 180g, 300g)",
+    )
 
     objects = ProductQuerySet.as_manager()
 

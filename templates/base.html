@@ -48,19 +48,19 @@
             </div>
 
             <nav class="sidebar-nav">
-                <a href="{% url 'dashboard:home' %}" class="sidebar-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
+                <a hx-boost="true" href="{% url 'dashboard:home' %}" class="sidebar-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}">
                     <i class="bi bi-grid-1x2"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="{% url 'inventory:product-list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'product-list' %}active{% endif %}">
+                <a hx-boost="true" href="{% url 'inventory:product-list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'product-list' %}active{% endif %}">
                     <i class="bi bi-box-seam"></i>
                     <span>Produtos</span>
                 </a>
-                <a href="{% url 'inventory:stock-list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'stock-list' %}active{% endif %}">
+                <a hx-boost="true" href="{% url 'inventory:stock-list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'stock-list' %}active{% endif %}">
                     <i class="bi bi-stack"></i>
                     <span>Estoque</span>
                 </a>
-                <a href="{% url 'inventory:movement-list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'movement-list' %}active{% endif %}">
+                <a hx-boost="true" href="{% url 'inventory:movement-list' %}" class="sidebar-link {% if request.resolver_match.url_name == 'movement-list' %}active{% endif %}">
                     <i class="bi bi-clock-history"></i>
                     <span>Histórico</span>
                 </a>

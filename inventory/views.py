@@ -23,12 +23,15 @@ class CompanyScopedMixin(LoginRequiredMixin):
     def is_htmx(self):
         return self.request.headers.get("HX-Request") == "true"
 
+    def is_boosted(self):
+        return self.request.headers.get("HX-Boosted") == "true"
+
 
 class HTMXListMixin:
     partial_template_name = None
 
     def get_template_names(self):
-        if self.is_htmx():
+        if self.is_htmx() and not self.is_boosted():
             return [self.partial_template_name]
         return [self.template_name]
 

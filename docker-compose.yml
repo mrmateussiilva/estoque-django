@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: finderbit-web
-    restart: unless-stopped
+    restart: always
     env_file:
       - .env
     ports:
@@ -14,6 +14,8 @@ services:
       - media:/app/media
     environment:
       - HOST=${HOST:-0.0.0.0}
+      - PYTHONUNBUFFERED=1
+    command: gunicorn config.asgi:application --bind 0.0.0.0:8000 --workers 4 --timeout 120
 
 volumes:
   staticfiles:

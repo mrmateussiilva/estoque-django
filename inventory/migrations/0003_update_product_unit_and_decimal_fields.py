@@ -4,25 +4,44 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('inventory', '0002_category_structure'),
+        ("inventory", "0002_category_structure"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='product',
-            name='minimum_stock',
-            field=models.DecimalField(decimal_places=3, default=0, max_digits=12, verbose_name='estoque minimo'),
+            model_name="product",
+            name="minimum_stock",
+            field=models.DecimalField(
+                decimal_places=3,
+                default=0,
+                max_digits=12,
+                verbose_name="estoque minimo",
+            ),
         ),
         migrations.AlterField(
-            model_name='product',
-            name='unit',
-            field=models.CharField(choices=[('un', 'Unidade (UN)'), ('mt', 'Metros (MT)'), ('lt', 'Litros (LT)'), ('kg', 'Quilos (KG)'), ('fl', 'Folhas (FL)'), ('pc', 'Peças (PC)')], default='un', max_length=2, verbose_name='unidade'),
+            model_name="product",
+            name="unit",
+            field=models.CharField(
+                choices=[
+                    ("un", "Unidade (UN)"),
+                    ("mt", "Metros (MT)"),
+                    ("lt", "Litros (LT)"),
+                    ("kg", "Quilos (KG)"),
+                    ("fl", "Folhas (FL)"),
+                    ("pc", "Peças (PC)"),
+                    ("rolo", "Rolos"),
+                ],
+                default="un",
+                max_length=4,
+                verbose_name="unidade",
+            ),
         ),
         migrations.AlterField(
-            model_name='stockmovement',
-            name='quantity',
-            field=models.DecimalField(decimal_places=3, max_digits=12, verbose_name='quantidade'),
+            model_name="stockmovement",
+            name="quantity",
+            field=models.DecimalField(
+                decimal_places=3, max_digits=12, verbose_name="quantidade"
+            ),
         ),
     ]
