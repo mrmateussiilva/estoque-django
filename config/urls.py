@@ -4,6 +4,10 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 
+from core.views import handler404, handler500
+
+handler404 = handler404
+handler500 = handler500
 
 urlpatterns = [
     path("admin/", admin.site.urls),
