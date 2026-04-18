@@ -55,14 +55,14 @@ Acesse: http://localhost:8000
 
 ```bash
 cp .env.example.dev .env
-docker compose up --build
+docker compose -f docker-compose.yml up --build
 ```
 
 ### Produção
 
 ```bash
 cp .env.example.prod .env
-docker compose up --build -d
+docker compose -f docker-compose.yml up --build -d
 ```
 
 ---
