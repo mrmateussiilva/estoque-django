@@ -187,6 +187,28 @@ body {
     height: 16px;
 }
 
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-icon:hover {
+    background-color: rgba(225, 29, 72, 0.15);
+    color: var(--brand);
+}
+
+.btn-icon i {
+    font-size: 14px;
+}
+
 .btn-outline-brand {
     background-color: transparent;
     color: var(--brand);

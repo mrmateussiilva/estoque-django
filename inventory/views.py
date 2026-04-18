@@ -140,14 +140,35 @@ class ProductUpdateView(ProductQueryMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = "inventory/product_form_page.html"
+    partial_template_name = "inventory/partials/modal_product_form.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["company"] = self.request.company
         return kwargs
 
+    def get_template_names(self):
+        if self.is_htmx() and not self.is_boosted():
+            return [self.partial_template_name]
+        return [self.template_name]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["object"] = self.get_object()
+        context["form"] = self.get_form()
+        return context
+
     def form_valid(self, form):
+        form.save()
         messages.success(self.request, "Produto atualizado com sucesso.")
+        if self.is_htmx() and not self.is_boosted():
+            from django.shortcuts import render
+
+            return render(
+                self.request,
+                "inventory/partials/products_table.html",
+                self.get_context_data(),
+            )
         return super().form_valid(form)
 
 

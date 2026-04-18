@@ -44,7 +44,7 @@ class ProductForm(forms.ModelForm):
         new_category = (cleaned_data.get("new_category") or "").strip()
 
         if not category and not new_category:
-            self.add_error("category", "Selecione uma categoria ou crie uma nova.")
+            pass
         return cleaned_data
 
     def save(self, commit=True):

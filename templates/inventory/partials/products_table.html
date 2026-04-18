@@ -7,6 +7,7 @@
                 <th>Categoria</th>
                 <th>Saldo</th>
                 <th>Status</th>
+                <th class="text-end">Ações</th>
             </tr>
         </thead>
         <tbody>
@@ -18,7 +19,7 @@
                 </td>
                 <td class="cell-muted">{{ product.sku }}</td>
                 <td>
-                    <span class="badge-custom badge-category">{{ product.category.name }}</span>
+                    <span class="badge-custom badge-category">{{ product.category.name|default:"-" }}</span>
                 </td>
                 <td class="cell-number">
                     <span class="stock-value">{{ product.current_stock|stringformat:"g" }}</span>
@@ -31,10 +32,23 @@
                     <span class="badge-custom badge-success-custom">Normal</span>
                     {% endif %}
                 </td>
+                <td class="text-end">
+                    <button 
+                        type="button"
+                        class="btn-icon"
+                        hx-get="{% url 'inventory:product-update' product.pk %}"
+                        hx-target="#modalProductContent"
+                        hx-swap="innerHTML"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalProduct"
+                        title="Editar produto">
+                        <i class="bi bi-pencil-fill"></i>
+                    </button>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" class="text-center py-4 text-muted-custom">
+                <td colspan="6" class="text-center py-4 text-muted-custom">
                     Nenhum produto cadastrado.
                 </td>
             </tr>
